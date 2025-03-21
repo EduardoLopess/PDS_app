@@ -101,6 +101,19 @@ export default CarrinhoStyle = StyleSheet.create({
 
     },
 
+    btnCancelar: {
+        marginBottom: 5
+
+
+    },
+
+    txtBtnCancelar: {
+        fontSize: 16,
+        color: 'red',
+        fontWeight: 'bold',
+        textDecorationLine: 'underline'
+    },
+
     totalContainer: {
         width: "80%",
         height: "10%",

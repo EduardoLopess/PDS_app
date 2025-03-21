@@ -19,6 +19,7 @@ export const CarrinhoProvider = ({ children }) => {
     const [carrinhoVisivel, setCarrinhoVisivel] = useState(false)
     const [numeroMesa, setNumeroMesa] = useState({})
     const [totalItens, setTotalItens] = useState()
+    const [mesaStatus, setMesaStatus] = useState('')
 
     useEffect(() => {
         if (itemCarrinho.length === 0) {
@@ -26,6 +27,7 @@ export const CarrinhoProvider = ({ children }) => {
 
         } else {
             setCarrinhoVisivel(true)
+            console.log(itemCarrinho)
         }
         
         const total = itemCarrinho.reduce((acc, item) => {
@@ -40,11 +42,19 @@ export const CarrinhoProvider = ({ children }) => {
 
     const iniciarPedido = (id) => {
         const mesaValida = MesaData.find(mesa => mesa.id === id)
+        const mesaOcupada = mesaValida.status
         const mesaAtual = mesaValida ? mesaValida.numero : null;
         console.log("Numero mesa:", numeroMesa.numero)
 
+
+        if(mesaOcupada === true){
+            Alert.alert('MESA OCUPADA')
+            return
+        }
+
+
         if(carrinhoVisivel === true && itemCarrinho.length > 0 && mesaAtual != numeroMesa.numero){
-            Alert.alert('Pedido em aberto!.')
+            Alert.alert('Pedido em andamento na ', `MESA ${numeroMesa.numero}`);
             return
         }
 
@@ -57,11 +67,25 @@ export const CarrinhoProvider = ({ children }) => {
 
     }
 
+    const finalizarPedido = () => {
+        console.log("PEDIDO FINALIZADO")
+        setItemCarrinho([])
+        navigation.navigate('PEDIDOS')
+        
+    }
+
+    const cancelarPedido = () => {
+        setItemCarrinho([])
+        Alert.alert("PEDIDO CANCELADO!")
+        navigation.navigate('MESAS')
+       
+    }
 
     
 
     //ADD Alaminuta
     const addAlaminutaCarrinho = (idAdicional, itemId) => {
+       
         const item = AlaminutaData
             .map(categoria => categoria.data)
             .flat()
@@ -74,23 +98,15 @@ export const CarrinhoProvider = ({ children }) => {
             .find(adicional => adicional.id === idAdicional)
        // console.log("Adicional:", adicional, " ALA: ", item)
 
-        const alaAdicional = {
-            adicional: adicional,
-            alaminuta: item
-        };
+        const alaAdicional = [{
+            alaminuta: item,
+            adicional: adicional
+            
+        }];
+
         console.log(alaAdicional)
 
-        // const existeAla = alaAdicional.alaminuta.find(item => item.id === id)
-        //     return console.log(existeAla, "tem ja")
-       
-        // setItemCarrinho(prevCarrinho => {
-
-        // })
-        // setItemCarrinho(prevCarrinho => {
-        //     alaAdicional = prevCarrinho.find(item => item.id === itemId)
-        // })
-        
-        console.log(alaAdicional)
+                      
     }
 
     //ADD item
@@ -109,7 +125,6 @@ export const CarrinhoProvider = ({ children }) => {
                     .map(categoria => categoria.data)
                     .flat()
                     .find(item => item.id === id)
-                    icone = "adadas"
                 break
             case "SemAlcool":
                 itemSelecionado = SemAlcoolData
@@ -193,6 +208,8 @@ export const CarrinhoProvider = ({ children }) => {
     return (
         <carrinhoContext.Provider value={{
             iniciarPedido,
+            cancelarPedido,
+            finalizarPedido,
             addItemCarrinho,
             addAlaminutaCarrinho,
             carrinhoVisivel,

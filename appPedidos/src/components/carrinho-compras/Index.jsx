@@ -1,4 +1,4 @@
-import { Modal, Text, TouchableOpacity, View } from "react-native"
+import { Alert, Modal, Text, TouchableOpacity, View } from "react-native"
 import { FontAwesome, Ionicons, MaterialIcons } from '@expo/vector-icons';
 import ModalStyle from '../produtos-categoria/stylesCategoria/ModalStyle'
 import CarrinhoStyle from '../carrinho-compras/style'
@@ -12,11 +12,33 @@ export const CarrinhoCompras = () => {
     
     const {
         carrinhoVisivel,
+        finalizarPedido,
+        cancelarPedido,
         itemCarrinho,
         numeroMesa,
         removerItem,
         totalItens
     } = useCarrinho()
+
+    const Alerta = () => {
+        Alert.alert(
+            `Deseja Cancelar o Pedido?`,
+            '',
+            [
+                {
+                    text: 'SIM',
+                    onPress: () => cancelarPedido(),
+                    style: 'cancel'
+                },
+                {
+                    text: 'NAO',
+                    onPress: () => {}
+                    
+                }
+            ],
+            {cancelable: true}
+        )
+    }
 
     const openModal = () => setModalVisivel(true)
     const fecharModal = () => setModalVisivel(false)
@@ -53,6 +75,7 @@ export const CarrinhoCompras = () => {
                                         </View>
                                         <View style = {CarrinhoStyle.viewNome}>
                                             <Text style = {ModalStyle.txtProp}>{item.nome}</Text>
+                                            
                                         </View>
                                         <View style = {CarrinhoStyle.viewValor}>
                                             <Text style = {ModalStyle.txtValor}>{`R$: ${item.valor.toFixed(2).replace('.', ',')}`}</Text>
@@ -76,13 +99,19 @@ export const CarrinhoCompras = () => {
                                 <View style = {CarrinhoStyle.totalContainer}>
                                     <Text style = {CarrinhoStyle.txtTotal}>{`TOTAL | R$: ${totalItens.toFixed(2).replace('.', ',')}`}</Text>
                                 </View>
+                                
                             )}
+                          
+                            <TouchableOpacity style = {CarrinhoStyle.btnCancelar} onPress={Alerta}>
+                                <Text style = {CarrinhoStyle.txtBtnCancelar}>CANCELAR PEDIDO</Text>
+                            </TouchableOpacity>
+                            
 
                             <View style = {CarrinhoStyle.btnContainer}>
                                 <TouchableOpacity onPress = {fecharModal} style = {[CarrinhoStyle.btn, { backgroundColor: '#E90000' }]}>
                                     <Text style = {CarrinhoStyle.textBtn}>Fechar</Text>
                                 </TouchableOpacity>
-                                <TouchableOpacity onPress = {fecharModal} style = {[CarrinhoStyle.btn, { backgroundColor: '#32CD32' }]}>
+                                <TouchableOpacity onPress = {finalizarPedido} style = {[CarrinhoStyle.btn, { backgroundColor: '#32CD32' }]}>
                                     <Text style = {CarrinhoStyle.textBtn}>Finalizar</Text>
                                 </TouchableOpacity>
                             </View>

@@ -76,6 +76,10 @@ export const CategoriaAlaminuta = ({ modalIdentificacao, abrirModal, fecharModal
                         keyExtractor={(item, index) => index.toString()}
                         renderItem={({ item, section }) => (
                             <View style={ModalStyle.containerProp}>
+                                <View style={ModalStyle.viewTipo}>
+                                    <Text style={ModalStyle.txtTipo}>{item.tipo}</Text>
+
+                                </View>
                                 <View style={ModalStyle.viewNome}>
                                     <Text style={ModalStyle.txtProp}>{item.nome}</Text>
                                 </View>
