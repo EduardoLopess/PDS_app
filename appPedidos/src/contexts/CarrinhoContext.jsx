@@ -1,5 +1,6 @@
 import { useNavigation } from "@react-navigation/native";
 import { createContext, useEffect, useState, useContext } from "react";
+import ToastManager, { Toast } from "toastify-react-native";
 import { Alert } from "react-native";
 import MesaData from "../../data/MesaData";
 import { CervejaData } from "../../data/CervejaData";
@@ -48,7 +49,8 @@ export const CarrinhoProvider = ({ children }) => {
 
 
         if(mesaOcupada === true){
-            Alert.alert('MESA OCUPADA')
+            //Alert.alert('MESA OCUPADA')
+            Toast.error("Mesa Ocupada!")
             return
         }
 
@@ -70,6 +72,7 @@ export const CarrinhoProvider = ({ children }) => {
     const finalizarPedido = () => {
         console.log("PEDIDO FINALIZADO")
         setItemCarrinho([])
+        Toast.success("Pedido finalizado! ")
         navigation.navigate('PEDIDOS')
         
     }
@@ -168,10 +171,15 @@ export const CarrinhoProvider = ({ children }) => {
             } else {
                 return [...prevCarrinho, { 
                     ...itemSelecionado, qtd: 1, categoria: identificacao 
+                    
                 }];
+                
             }
             
+            
         });
+        Toast.success("ITEM ADICIONADO! ")
+        
     
     }
 
@@ -195,7 +203,9 @@ export const CarrinhoProvider = ({ children }) => {
             }
             
             return prevCarrinho;
+            
         });
+        Toast.error("Item deletado!")
         
       
        

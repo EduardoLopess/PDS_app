@@ -12,6 +12,7 @@ export default ModalStyle = StyleSheet.create({
         maxHeight: '95%',
         overflow: 'scroll',
         paddingTop: 20,
+        zIndex: 5
     },
 
     tituloModal: {

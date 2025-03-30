@@ -8,6 +8,7 @@ import { PedidosScreen } from "./src/screens/listagem-pedidos/Index"
 import { CarrinhoCompras } from "./src/components/carrinho-compras/Index"
 import { CarrinhoProvider } from "./src/contexts/CarrinhoContext"
 import { PedidoProvider } from "./src/contexts/PedidoContext"
+import ToastManager, { Toast } from "toastify-react-native";
 
 
 const Tab = createBottomTabNavigator()
@@ -15,9 +16,12 @@ export default function App() {
   return (
 
       <NavigationContainer>
+       
           <CarrinhoProvider>
             <PedidoProvider>
               <GestureHandlerRootView style = {{flex: 1}}>
+              <ToastManager style={{ zIndex: 999999, position: 'absolute', top: 50 }} />
+
                 <Tab.Navigator tabBar = {() => <NavegacaoInferior/>}
                   screenOptions = {{
                     headerTitleAlign: 'center',

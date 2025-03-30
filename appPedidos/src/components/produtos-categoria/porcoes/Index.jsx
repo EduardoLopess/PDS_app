@@ -10,6 +10,7 @@ import { useCarrinho } from '../../../contexts/CarrinhoContext'
 
 export const CategoriaPorcoes = ({ modalIdentificacao, abrirModal, fecharModal, modalVisible }) => {
     const route = useRoute()
+    const {numero} = route.params
     const { addItemCarrinho, numeroMesa } = useCarrinho()
 
     
@@ -50,7 +51,7 @@ export const CategoriaPorcoes = ({ modalIdentificacao, abrirModal, fecharModal, 
                                     <Text style={ModalStyle.txtValor}>{`R$: ${item.valor.toFixed(2).replace('.', ',')}`}</Text>
                                 </View>
 
-                                {numeroMesa ? (
+                                {numero ? (
                                     <TouchableOpacity style={[ModalStyle.BtnAddRemove, {backgroundColor: '#4E9726'}]} onPress={() => addItemCarrinho(item.id, "Porcoes")}>
                                         <Ionicons name="add-outline" size={25} />
                                     </TouchableOpacity>
