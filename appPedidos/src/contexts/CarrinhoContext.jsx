@@ -1,5 +1,6 @@
 import { useNavigation } from "@react-navigation/native";
 import { createContext, useEffect, useState, useContext } from "react";
+import ToastManager, { Toast } from "toastify-react-native";
 import { Alert } from "react-native";
 import MesaData from "../../data/MesaData";
 import { CervejaData } from "../../data/CervejaData";
@@ -8,18 +9,20 @@ import PasteisData from "../../data/PasteisData";
 import { AlaminutaData } from "../../data/AlaminutaData";
 import PorcoesData from "../../data/PorcoesData";
 import { DrinkData } from "../../data/DrinkData";
+import { usePedido } from "./PedidoContext";
 
 
 const carrinhoContext = createContext()
 
 export const CarrinhoProvider = ({ children }) => {
- 
+    const { criarPedido } = usePedido()
     const navigation = useNavigation()
     const [itemCarrinho, setItemCarrinho] = useState([])
     const [carrinhoVisivel, setCarrinhoVisivel] = useState(false)
     const [numeroMesa, setNumeroMesa] = useState({})
     const [totalItens, setTotalItens] = useState()
-    const [mesaStatus, setMesaStatus] = useState('')
+    const [mesa, setMesa] = useState(MesaData)
+    
 
     useEffect(() => {
         if (itemCarrinho.length === 0) {
@@ -41,17 +44,16 @@ export const CarrinhoProvider = ({ children }) => {
 
 
     const iniciarPedido = (id) => {
-        const mesaValida = MesaData.find(mesa => mesa.id === id)
+        const mesaValida = mesa.find(mesa => mesa.id === id)
         const mesaOcupada = mesaValida.status
         const mesaAtual = mesaValida ? mesaValida.numero : null;
-        console.log("Numero mesa:", numeroMesa.numero)
-
-
+       
+        
         if(mesaOcupada === true){
             Alert.alert('MESA OCUPADA')
+            //Toast.error("Mesa Ocupada!")
             return
         }
-
 
         if(carrinhoVisivel === true && itemCarrinho.length > 0 && mesaAtual != numeroMesa.numero){
             Alert.alert('Pedido em andamento na ', `MESA ${numeroMesa.numero}`);
@@ -67,15 +69,30 @@ export const CarrinhoProvider = ({ children }) => {
 
     }
 
-    const finalizarPedido = () => {
-        console.log("PEDIDO FINALIZADO")
+    const finalizarPedido = (numeroMesa) => {
+        const mesaNumero = numeroMesa.numero  
+        const mesaId = mesa.find(item => item.numero === mesaNumero).id
+        const attMesa = (mesaId) => {
+            const novaMesa = mesa.map(mesa => 
+                mesa.id === mesaId ? {...mesa, status: !mesa.status} : mesa
+            )
+            setMesa(novaMesa)
+        }
+
+        attMesa(mesaId)
+        criarPedido(itemCarrinho, numeroMesa)
         setItemCarrinho([])
-        navigation.navigate('PEDIDOS')
+        setNumeroMesa('')
+        navigation.navigate('MESAS')
+        
         
     }
 
+
+
     const cancelarPedido = () => {
         setItemCarrinho([])
+
         Alert.alert("PEDIDO CANCELADO!")
         navigation.navigate('MESAS')
        
@@ -168,10 +185,15 @@ export const CarrinhoProvider = ({ children }) => {
             } else {
                 return [...prevCarrinho, { 
                     ...itemSelecionado, qtd: 1, categoria: identificacao 
+                    
                 }];
+                
             }
             
+            
         });
+        Toast.success("ITEM ADICIONADO! ")
+        
     
     }
 
@@ -195,7 +217,9 @@ export const CarrinhoProvider = ({ children }) => {
             }
             
             return prevCarrinho;
+            
         });
+        Toast.error("Item deletado!")
         
       
        
@@ -216,7 +240,8 @@ export const CarrinhoProvider = ({ children }) => {
             itemCarrinho,
             numeroMesa,
             removerItem,
-            totalItens
+            totalItens,
+            mesa
 
         }}>
             {children}

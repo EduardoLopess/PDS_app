@@ -6,11 +6,13 @@ import { ScrollView } from "react-native-gesture-handler";
 import { Mesa } from "../../components/mesa/Index";
 import MesaData from "../../../data/MesaData";
 import { Toast } from "../../utils/notificacao/toast/Index";
+import { useCarrinho } from "../../contexts/CarrinhoContext";
 
 export const MesasScreen = () => {
-     const data = MesaData
      const [termoBusca, setTermoBusca] = useState('')
      const [statusFiltro, setStatusFiltro] = useState(null)
+     const { mesa } = useCarrinho()
+     const data = mesa
      
      // Filtro
      const filtrarData = data.filter((item) => {

@@ -20,7 +20,8 @@ export const CarrinhoCompras = () => {
         totalItens
     } = useCarrinho()
 
-    const Alerta = () => {
+    
+    const AlertaCancelar = () => {
         Alert.alert(
             `Deseja Cancelar o Pedido?`,
             '',
@@ -39,6 +40,27 @@ export const CarrinhoCompras = () => {
             {cancelable: true}
         )
     }
+
+    const AlertaFinalizar = () => {
+        Alert.alert(
+            `Finalizar o Pedido?`,
+            '',
+            [
+                {
+                    text: 'SIM',
+                    onPress: () => finalizarPedido(numeroMesa),
+                    style: 'cancel'
+                },
+                {
+                    text: 'NAO',
+                    onPress: () => {}
+                    
+                }
+            ],
+            {cancelable: true}
+        )
+    }
+
 
     const openModal = () => setModalVisivel(true)
     const fecharModal = () => setModalVisivel(false)
@@ -102,7 +124,7 @@ export const CarrinhoCompras = () => {
                                 
                             )}
                           
-                            <TouchableOpacity style = {CarrinhoStyle.btnCancelar} onPress={Alerta}>
+                            <TouchableOpacity style = {CarrinhoStyle.btnCancelar} onPress={AlertaCancelar}>
                                 <Text style = {CarrinhoStyle.txtBtnCancelar}>CANCELAR PEDIDO</Text>
                             </TouchableOpacity>
                             
@@ -111,7 +133,7 @@ export const CarrinhoCompras = () => {
                                 <TouchableOpacity onPress = {fecharModal} style = {[CarrinhoStyle.btn, { backgroundColor: '#E90000' }]}>
                                     <Text style = {CarrinhoStyle.textBtn}>Fechar</Text>
                                 </TouchableOpacity>
-                                <TouchableOpacity onPress = {finalizarPedido} style = {[CarrinhoStyle.btn, { backgroundColor: '#32CD32' }]}>
+                                <TouchableOpacity onPress = {AlertaFinalizar} style = {[CarrinhoStyle.btn, { backgroundColor: '#32CD32' }]}>
                                     <Text style = {CarrinhoStyle.textBtn}>Finalizar</Text>
                                 </TouchableOpacity>
                             </View>
