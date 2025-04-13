@@ -115,7 +115,7 @@ export const CarrinhoProvider = ({ children }) => {
             sabor: sabor.nome,
             idSabor: sabor.id,
             qtd: 1,
-            categoria: "Drink" // se estiver usando
+            categoria: "Drink"
           }
           
 

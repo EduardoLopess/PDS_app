@@ -14,12 +14,22 @@ export const Pedido = () => {
     const [modalVisivel, setModalVisivel] = useState(false)
     const openModal = () => setModalVisivel(true)
     const fecharModal = () => setModalVisivel(false)
+<<<<<<< HEAD
+=======
+
+
+    
+>>>>>>> 9f6539efee6aa9633ba640a3f00e28d40c0c3cfc
     return (
 
         <TouchableOpacity onPress={openModal}>
             <View style={PedidoStyle.container}>
                 <View style={PedidoStyle.viewMesa}>
+<<<<<<< HEAD
                     <Text style={PedidoStyle.txt}>MESA - 12</Text>
+=======
+                    <Text style={PedidoStyle.txt}>MESA {pedidoData.numero}</Text>
+>>>>>>> 9f6539efee6aa9633ba640a3f00e28d40c0c3cfc
                 </View>
                 <View style={PedidoStyle.divisao} />
                 <View style={PedidoStyle.viewHr}>
