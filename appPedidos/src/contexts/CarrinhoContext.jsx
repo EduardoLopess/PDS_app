@@ -98,7 +98,51 @@ export const CarrinhoProvider = ({ children }) => {
        
     }
 
-    
+    //ADD SABOR CAIPIRRINHA
+    const addSaborDrink = (idSabor, idDrink) => {
+        const drink = DrinkData.map(categoria => categoria.data)
+            .flat()
+            .find(item => item.id === idDrink)
+        
+        const saborData = DrinkData.find(item => item.categoria === "Sabores").data
+        const sabor = saborData.find(item => item.id === idSabor)
+
+        const drinkSabor = {
+            id: drink.id,
+            nome: drink.nome,
+            tipo: drink.tipo,
+            valor: drink.valor,
+            sabor: sabor.nome,
+            idSabor: sabor.id,
+            qtd: 1,
+            categoria: "Drink" // se estiver usando
+          }
+          
+
+        setItemCarrinho(prevCarrinho => {
+            const itemPresente = prevCarrinho
+                .find(item => item.id === idDrink && item.sabor === sabor.id)
+
+            if(itemPresente) {
+                console.log("ITEM PRESENTE")
+                return prevCarrinho.map(drinkSabor => 
+                    drinkSabor.id === idDrink && drinkSabor.idSabor === sabor.id
+                    ? {...drinkSabor, qtd: itemPresente.qtd + 1}
+                    : drinkSabor
+                )
+            } else {
+                const itemParaCarrinho = { ...drinkSabor, qtd: 1 }
+                console.log("SÓ MOSTRANDO, SEM ADICIONAR:", itemParaCarrinho)
+        
+                return [...prevCarrinho, itemParaCarrinho]
+            }
+            
+
+        })
+
+        
+
+    }
 
     //ADD Alaminuta
     const addAlaminutaCarrinho = (idAdicional, itemId) => {
@@ -235,6 +279,7 @@ export const CarrinhoProvider = ({ children }) => {
             cancelarPedido,
             finalizarPedido,
             addItemCarrinho,
+            addSaborDrink,
             addAlaminutaCarrinho,
             carrinhoVisivel,
             itemCarrinho,

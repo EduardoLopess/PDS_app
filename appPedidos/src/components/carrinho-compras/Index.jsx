@@ -9,7 +9,7 @@ import { ScrollView } from "react-native-gesture-handler";
 
 export const CarrinhoCompras = () => {
     const [modalVisivel, setModalVisivel] = useState(false)
-    
+
     const {
         carrinhoVisivel,
         finalizarPedido,
@@ -20,7 +20,7 @@ export const CarrinhoCompras = () => {
         totalItens
     } = useCarrinho()
 
-    
+
     const AlertaCancelar = () => {
         Alert.alert(
             `Deseja Cancelar o Pedido?`,
@@ -33,11 +33,11 @@ export const CarrinhoCompras = () => {
                 },
                 {
                     text: 'NAO',
-                    onPress: () => {}
-                    
+                    onPress: () => { }
+
                 }
             ],
-            {cancelable: true}
+            { cancelable: true }
         )
     }
 
@@ -53,11 +53,11 @@ export const CarrinhoCompras = () => {
                 },
                 {
                     text: 'NAO',
-                    onPress: () => {}
-                    
+                    onPress: () => { }
+
                 }
             ],
-            {cancelable: true}
+            { cancelable: true }
         )
     }
 
@@ -66,78 +66,84 @@ export const CarrinhoCompras = () => {
     const fecharModal = () => setModalVisivel(false)
 
     const renderCarrinhoCompras = () => {
-        if(carrinhoVisivel) {
+        if (carrinhoVisivel) {
             return (
-                <View style = {CarrinhoStyle.container}>
+                <View style={CarrinhoStyle.container}>
                     <TouchableOpacity onPress={openModal}>
-                        <Ionicons name = "cart-outline" size = {45} color = "black"/>
+                        <Ionicons name="cart-outline" size={45} color="black" />
                     </TouchableOpacity>
 
                     <Modal
-                        visible = {modalVisivel}
-                        onRequestClose = {fecharModal}
-                        animationType = "slide"
-                        transparent = {true}
+                        visible={modalVisivel}
+                        onRequestClose={fecharModal}
+                        animationType="slide"
+                        transparent={true}
                     >
-                        <View style = {ModalStyle.conteudoModal}>
-                            <View style = {LinhaStyle.linhaHorizontal}/>
-                                <Text style = {ModalStyle.tituloModal}>Carrinho</Text>
-                            <View style = {LinhaStyle.linhaHorizontal}/>
-                            
-                            <View style = {CarrinhoStyle.mesaIdentificacao}>
-                                <Text style = {CarrinhoStyle.mesaTxt}>MESA {numeroMesa.numero} </Text>
+                        <View style={ModalStyle.conteudoModal}>
+                            <View style={LinhaStyle.linhaHorizontal} />
+                            <Text style={ModalStyle.tituloModal}>Carrinho</Text>
+                            <View style={LinhaStyle.linhaHorizontal} />
+
+                            <View style={CarrinhoStyle.mesaIdentificacao}>
+                                <Text style={CarrinhoStyle.mesaTxt}>MESA {numeroMesa.numero} </Text>
                             </View>
 
                             <ScrollView>
                                 {itemCarrinho.map((item) => (
-                                    <View key ={`${item.categoria}-${item.id}`} style = {CarrinhoStyle.itemContainer}>
-                        
-                                        <View style = {CarrinhoStyle.viewTipo}>
-                                            <Text style = {ModalStyle.txtTipo}>{item.tipo}</Text>
+                                    <View key={`${item.categoria}-${item.id}`} style={CarrinhoStyle.itemContainer}>
+
+                                        <View style={CarrinhoStyle.viewTipo}>
+                                            <Text style={ModalStyle.txtTipo}>{item.tipo}</Text>
                                         </View>
-                                        <View style = {CarrinhoStyle.viewNome}>
-                                            <Text style = {ModalStyle.txtProp}>{item.nome}</Text>
-                                            
+                                        <View style={CarrinhoStyle.viewNome}>
+                                            <Text style={ModalStyle.txtProp}>{item.nome}</Text>
+                                            {item.sabor && (
+                                                <Text>SABOR: {item.sabor}</Text>
+                                            )}
                                         </View>
-                                        <View style = {CarrinhoStyle.viewValor}>
-                                            <Text style = {ModalStyle.txtValor}>{`R$: ${item.valor.toFixed(2).replace('.', ',')}`}</Text>
+                                        <View style={CarrinhoStyle.viewValor}>
+                                            {typeof item.valor === "number" && (
+                                                <Text style={ModalStyle.txtValor}>
+                                                    {`R$: ${item.valor.toFixed(2).replace('.', ',')}`}
+                                                </Text>
+                                            )}
                                         </View>
-                                        <View style = {CarrinhoStyle.viewQtd}>
-                                            <Text style = {ModalStyle.txtProp}>{`${item.qtd}x`}</Text>
+                                        <View style={CarrinhoStyle.viewQtd}>
+                                            <Text style={ModalStyle.txtProp}>{`${item.qtd}x`}</Text>
                                         </View>
-                                        
-                                        <View style = {CarrinhoStyle.viewBtn}>
-                                            <TouchableOpacity style = {[CarrinhoStyle.BtnAddRemove, {backgroundColor: 'red'}]} onPress={() => removerItem(item.id, item.categoria)}>
+
+                                        <View style={CarrinhoStyle.viewBtn}>
+                                            <TouchableOpacity style={[CarrinhoStyle.BtnAddRemove, { backgroundColor: 'red' }]} onPress={() => removerItem(item.id, item.categoria)}>
                                                 <Ionicons name="remove-outline" size={25} />
                                             </TouchableOpacity>
                                         </View>
 
                                     </View>
                                 ))}
-                                
+
                             </ScrollView>
 
-                            { totalItens && (
-                                <View style = {CarrinhoStyle.totalContainer}>
-                                    <Text style = {CarrinhoStyle.txtTotal}>{`TOTAL | R$: ${totalItens.toFixed(2).replace('.', ',')}`}</Text>
+                            {totalItens && (
+                                <View style={CarrinhoStyle.totalContainer}>
+                                    <Text style={CarrinhoStyle.txtTotal}>{`TOTAL | R$: ${totalItens.toFixed(2).replace('.', ',')}`}</Text>
                                 </View>
-                                
-                            )}
-                          
-                            <TouchableOpacity style = {CarrinhoStyle.btnCancelar} onPress={AlertaCancelar}>
-                                <Text style = {CarrinhoStyle.txtBtnCancelar}>CANCELAR PEDIDO</Text>
-                            </TouchableOpacity>
-                            
 
-                            <View style = {CarrinhoStyle.btnContainer}>
-                                <TouchableOpacity onPress = {fecharModal} style = {[CarrinhoStyle.btn, { backgroundColor: '#E90000' }]}>
-                                    <Text style = {CarrinhoStyle.textBtn}>Fechar</Text>
+                            )}
+
+                            <TouchableOpacity style={CarrinhoStyle.btnCancelar} onPress={AlertaCancelar}>
+                                <Text style={CarrinhoStyle.txtBtnCancelar}>CANCELAR PEDIDO</Text>
+                            </TouchableOpacity>
+
+
+                            <View style={CarrinhoStyle.btnContainer}>
+                                <TouchableOpacity onPress={fecharModal} style={[CarrinhoStyle.btn, { backgroundColor: '#E90000' }]}>
+                                    <Text style={CarrinhoStyle.textBtn}>Fechar</Text>
                                 </TouchableOpacity>
-                                <TouchableOpacity onPress = {AlertaFinalizar} style = {[CarrinhoStyle.btn, { backgroundColor: '#32CD32' }]}>
-                                    <Text style = {CarrinhoStyle.textBtn}>Finalizar</Text>
+                                <TouchableOpacity onPress={AlertaFinalizar} style={[CarrinhoStyle.btn, { backgroundColor: '#32CD32' }]}>
+                                    <Text style={CarrinhoStyle.textBtn}>Finalizar</Text>
                                 </TouchableOpacity>
                             </View>
-                            
+
                         </View>
                     </Modal>
                 </View>
@@ -152,5 +158,5 @@ export const CarrinhoCompras = () => {
 
         </>
     )
-    
+
 }
