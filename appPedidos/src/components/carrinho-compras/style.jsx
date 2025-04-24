@@ -22,7 +22,8 @@ export default CarrinhoStyle = StyleSheet.create({
 
     viewNome: {
         width: '35%',
-        justifyContent: 'flex-start', 
+        justifyContent: 'flex-start',
+        
     },
 
     viewTipo: {
@@ -60,6 +61,14 @@ export default CarrinhoStyle = StyleSheet.create({
         height: 40,
         alignItems: 'center',
         justifyContent: 'center'
+    },
+
+    btnAdicionais: {
+        width: '100%',
+        justifyContent: 'space-between',
+        alignItems: "center",
+        marginRight: 5,
+        flexDirection: 'row'
     },
 
     mesaIdentificacao: {
@@ -130,5 +139,11 @@ export default CarrinhoStyle = StyleSheet.create({
 
     btnContainer: {
         flexDirection: 'row'
+    },
+
+
+    containerAdc: {
+        flexDirection: 'row',
+        
     }
 })

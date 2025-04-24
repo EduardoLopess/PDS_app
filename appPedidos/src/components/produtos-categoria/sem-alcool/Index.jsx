@@ -43,7 +43,7 @@ export const CategoriaSemAlcool = ({ modalIdentificacao, abrirModal, fecharModal
                         renderItem={({ item }) => (
                             <View style={ModalStyle.containerProp}>
                                 <View style={ModalStyle.viewTipo}>
-                                    <Text style={ModalStyle.txtProp}>{item.tipo}</Text>
+                                    <Text style={ModalStyle.txtPropTipo}>{item.tipo}</Text>
                                 </View>
                                 
                                 <View style={ModalStyle.viewNome}>

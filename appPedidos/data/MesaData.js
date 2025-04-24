@@ -32,7 +32,7 @@ export default MesaData = [
    {
     id: 7,
     numero: 70,
-    status: true
+    status: false
    },
    {
     id: 8,

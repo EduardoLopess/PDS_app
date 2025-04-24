@@ -1,13 +1,13 @@
-import { Image, Text, TouchableOpacity, View } from "react-native"
+import { Alert, Image, Text, TouchableOpacity, View } from "react-native"
 import MesaStyle from './style'
 import { useCarrinho } from "../../contexts/CarrinhoContext"
+import { usePedido } from "../../contexts/PedidoContext"
 
 export const Mesa = ({id, numero, status}) => {
-    const {iniciarPedido} = useCarrinho()
+    const { iniciarPedido } = useCarrinho()
+    const { pedidoData } = usePedido()
     
-    const showId = () => {
-        console.log(id)
-    }
+ 
 
     return (
         <TouchableOpacity onPress = {() => {iniciarPedido(id)}}>

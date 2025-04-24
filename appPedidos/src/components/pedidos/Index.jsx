@@ -8,37 +8,31 @@ import { useState } from "react";
 import { usePedido } from "../../contexts/PedidoContext";
 
 
-export const Pedido = () => {
-    const {pedidoData} = usePedido()
-    console.log("PEDIDO NO MODAL: ", pedidoData)
+export const Pedido = ({idMesa, numero, total, hora, itens}) => {
+     const {editarPedido} = usePedido()
+  
     const [modalVisivel, setModalVisivel] = useState(false)
     const openModal = () => setModalVisivel(true)
     const fecharModal = () => setModalVisivel(false)
-<<<<<<< HEAD
-=======
-
-
     
->>>>>>> 9f6539efee6aa9633ba640a3f00e28d40c0c3cfc
-    return (
 
+    return (
+       
         <TouchableOpacity onPress={openModal}>
             <View style={PedidoStyle.container}>
                 <View style={PedidoStyle.viewMesa}>
-<<<<<<< HEAD
-                    <Text style={PedidoStyle.txt}>MESA - 12</Text>
-=======
-                    <Text style={PedidoStyle.txt}>MESA {pedidoData.numero}</Text>
->>>>>>> 9f6539efee6aa9633ba640a3f00e28d40c0c3cfc
+                    <Text style={PedidoStyle.txt}>MESA: {numero}</Text>
                 </View>
                 <View style={PedidoStyle.divisao} />
                 <View style={PedidoStyle.viewHr}>
-                    <Text style={PedidoStyle.txt}>Hora: 12h30</Text>
+                    <Text style={PedidoStyle.txt}>Hora: {hora}</Text>
                 </View>
                 <View style={PedidoStyle.divisao} />
                 <View style={PedidoStyle.viewTotal}>
 
-                    <Text style={PedidoStyle.txt}>TOTAL: R$: 20,00</Text>
+                    <Text style={PedidoStyle.txt}>
+                        {`TOTAL: R$: ${total.toFixed(2).replace('.', ',')}`}
+                    </Text>
 
                 </View>
             </View>
@@ -51,16 +45,38 @@ export const Pedido = () => {
             >
                 <View style={PedidoStyle.conteudoModal}>
                     <View style = {LinhaStyle.linhaHorizontal}/>
-                        <Text style = {ModalStyle.tituloModal}>PEDIDO n 2</Text>
+                        <Text style = {ModalStyle.tituloModal}>PEDIDO MESA - {numero}</Text>
                     <View style = {LinhaStyle.linhaHorizontal}/>
 
                     <View style = {PedidoStyle.mesaIdentificacao}>
-                        <Text style = {PedidoStyle.mesaTxt}>MESA 2</Text>
+                        <Text style = {PedidoStyle.mesaTxt}>Hora: {hora}</Text>
                     </View>
 
                     <ScrollView>
+                        {itens.map((item) => (
+                            <View key={`${item.categoria}-${item.id}-${item.idSabor}`}  style = {PedidoStyle.itemContainer}>
+                               <View style={PedidoStyle.viewTipoProp}>
+                                    <Text style={PedidoStyle.txtTipo}>{item.tipo}</Text>
+                               </View>
+                               <View style={PedidoStyle.viewNomeProp}>
+                                    <Text style={PedidoStyle.txtProp}>{item.nome}</Text>
+                               </View>
+                               <View style={PedidoStyle.viewQtdProp}>
+                                    <Text style={PedidoStyle.txtProp}>{item.qtd}x</Text>
+                               </View>
+                               <View style={PedidoStyle.viewValorProp}>
+                                    <Text style={PedidoStyle.txtProp}>{`R$: ${item.valor.toFixed(2).replace('.', ',')}`}</Text>
+                               </View>
+                            </View>
+                        ))}
+                        
                         
                     </ScrollView>
+
+                    <View style={PedidoStyle.containerTotal}>
+                        <Text style={PedidoStyle.txtTotal}>{`TOTAL - R$: ${total.toFixed(2).replace('.', ',')}`}</Text>
+
+                    </View>
                     
                    
 
@@ -73,7 +89,7 @@ export const Pedido = () => {
                         <TouchableOpacity onPress={fecharModal} style={[CarrinhoStyle.btn, { backgroundColor: '#E90000' }]}>
                             <Text style={CarrinhoStyle.textBtn}>Fechar</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity onPress={null} style={[CarrinhoStyle.btn, { backgroundColor: '#32CD32' }]}>
+                        <TouchableOpacity onPress={() => editarPedido(idMesa)} style={[CarrinhoStyle.btn, { backgroundColor: '#32CD32' }]}>
                             <Text style={CarrinhoStyle.textBtn}>EDITAR</Text>
                         </TouchableOpacity>
                     </View>
@@ -81,7 +97,11 @@ export const Pedido = () => {
                 </View>
 
 
-            </Modal>
+            </Modal> 
         </TouchableOpacity>
+       
+       
+       
+       
     )
 }

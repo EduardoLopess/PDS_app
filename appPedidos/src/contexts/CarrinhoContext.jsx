@@ -15,7 +15,7 @@ import { usePedido } from "./PedidoContext";
 const carrinhoContext = createContext()
 
 export const CarrinhoProvider = ({ children }) => {
-    const { criarPedido } = usePedido()
+    const { criarPedido, editarPedido } = usePedido()
     const navigation = useNavigation()
     const [itemCarrinho, setItemCarrinho] = useState([])
     const [carrinhoVisivel, setCarrinhoVisivel] = useState(false)
@@ -51,7 +51,7 @@ export const CarrinhoProvider = ({ children }) => {
         
         if(mesaOcupada === true){
             Alert.alert('MESA OCUPADA')
-            //Toast.error("Mesa Ocupada!")
+            editarPedido(id)
             return
         }
 
@@ -78,13 +78,11 @@ export const CarrinhoProvider = ({ children }) => {
             )
             setMesa(novaMesa)
         }
-
         attMesa(mesaId)
-        criarPedido(itemCarrinho, numeroMesa)
+        criarPedido(itemCarrinho, numeroMesa, mesaId, totalItens )
         setItemCarrinho([])
         setNumeroMesa('')
         navigation.navigate('MESAS')
-        
         
     }
 
@@ -92,7 +90,6 @@ export const CarrinhoProvider = ({ children }) => {
 
     const cancelarPedido = () => {
         setItemCarrinho([])
-
         Alert.alert("PEDIDO CANCELADO!")
         navigation.navigate('MESAS')
        
@@ -114,33 +111,27 @@ export const CarrinhoProvider = ({ children }) => {
             valor: drink.valor,
             sabor: sabor.nome,
             idSabor: sabor.id,
-            qtd: 1,
-            categoria: "Drink"
-          }
-          
+          } 
 
         setItemCarrinho(prevCarrinho => {
             const itemPresente = prevCarrinho
-                .find(item => item.id === idDrink && item.sabor === sabor.id)
+                .find(item => item.id === idDrink && item.idSabor === idSabor)
 
             if(itemPresente) {
                 console.log("ITEM PRESENTE")
                 return prevCarrinho.map(drinkSabor => 
-                    drinkSabor.id === idDrink && drinkSabor.idSabor === sabor.id
+                    drinkSabor.id === idDrink && drinkSabor.idSabor === idSabor
                     ? {...drinkSabor, qtd: itemPresente.qtd + 1}
                     : drinkSabor
                 )
             } else {
                 const itemParaCarrinho = { ...drinkSabor, qtd: 1 }
                 console.log("SÓ MOSTRANDO, SEM ADICIONAR:", itemParaCarrinho)
-        
                 return [...prevCarrinho, itemParaCarrinho]
             }
-            
 
         })
-
-        
+        Toast.success("ITEM ADICIONADO! ")  
 
     }
 
@@ -152,23 +143,49 @@ export const CarrinhoProvider = ({ children }) => {
             .flat()
             .find(item => item.id === itemId)
         
-         const itemAdicional = AlaminutaData.
+        const itemAdicional = AlaminutaData.
             find(item => item.categoria === 'Adicionais').data  
 
         const adicional = itemAdicional
             .find(adicional => adicional.id === idAdicional)
-       // console.log("Adicional:", adicional, " ALA: ", item)
 
-        const alaAdicional = [{
-            alaminuta: item,
-            adicional: adicional
+        const adcAlaminuta = {
+            id: item.id,
+            tipo: item.tipo,
+            nome: item.nome,
+            valor: item.valor,
+            adicional: [adicional]
+        }
+
+        setItemCarrinho(prevCarrinho => {
+            const itemPresente = prevCarrinho.find(
+                item => item.id === itemId && adicional.id === idAdicional
+            )
             
-        }];
+            if(itemPresente){
+                return prevCarrinho.map(item => {
+                    if (item.id === itemId) {
+                        const atualizado = {
+                            ...item,
+                            qtd: item.qtd + 1,
+                            adicional: [...item.adicional, adicional]
+                        };
+                        console.log("Adicionais atualizados:", JSON.stringify(atualizado.adicional, null, 2));
+                        return atualizado;
+                    }
+                    return item;
+                });
+            }else{
+                const adicional = {...adcAlaminuta, qtd: 1}
+                console.log("Adicional", JSON.stringify(adicional, null, 2));
 
-        console.log(alaAdicional)
-
-                      
+                return [...prevCarrinho, adicional]
+            }
+        })
     }
+        
+
+     
 
     //ADD item
     const addItemCarrinho = (id, identificacao) => {
@@ -236,38 +253,71 @@ export const CarrinhoProvider = ({ children }) => {
             
             
         });
-        Toast.success("ITEM ADICIONADO! ")
+        // Toast.success("ITEM ADICIONADO! ")
+        Toast.show({
+            type: 'success',  
+            text2: 'Item adicionado!',
+            useModal: true,
+            visibilityTime: 700
+          })
         
     
     }
 
-    const removerItem = (id, categoria) => {
-        setItemCarrinho((prevCarrinho) => {
-            const itemPresente = prevCarrinho
-                .find(itemCarrinho => itemCarrinho.id === id && itemCarrinho.categoria === categoria);
+    //REMOVE ITENS
+    const removerItem = (id, categoria, idSabor) => {
+        if (idSabor) {
+            setItemCarrinho(prevCarrinho => {
+                const itemPresente = prevCarrinho.find(item => item.id === id && item.idSabor === idSabor);
     
-            if (itemPresente) {
-                if (itemPresente.qtd > 1) {
-                    return prevCarrinho.map(itemCarrinho =>
-                        itemCarrinho.id === id && itemCarrinho.categoria === categoria
-                            ? { ...itemCarrinho, qtd: itemCarrinho.qtd - 1 }
-                            : itemCarrinho
-                    );
+                if (itemPresente) {
+                    if (itemPresente.qtd > 1) {
+                        return prevCarrinho.map(drinkSabor =>
+                            drinkSabor.id === id && drinkSabor.idSabor === idSabor
+                                ? { ...drinkSabor, qtd: drinkSabor.qtd - 1 }
+                                : drinkSabor
+                        );
+                    } else {
+                        return prevCarrinho.filter(drinkSabor =>
+                            drinkSabor.id !== id || drinkSabor.idSabor !== idSabor
+                        );
+                    }
                 } else {
-                    return prevCarrinho.filter(itemCarrinho =>
-                        !(itemCarrinho.id === id && itemCarrinho.categoria === categoria)
-                    );
+                    return prevCarrinho;
                 }
-            }
-            
-            return prevCarrinho;
-            
-        });
-        Toast.error("Item deletado!")
-        
-      
-       
+            });
+        } else {
+            setItemCarrinho(prevCarrinho => {
+                const itemPresente = prevCarrinho.find(itemCarrinho => itemCarrinho.id === id && itemCarrinho.categoria === categoria);
+    
+                if (itemPresente) {
+                    if (itemPresente.qtd > 1) {
+                        return prevCarrinho.map(itemCarrinho =>
+                            itemCarrinho.id === id && itemCarrinho.categoria === categoria
+                                ? { ...itemCarrinho, qtd: itemCarrinho.qtd - 1 }
+                                : itemCarrinho
+                        );
+                    } else {
+                       
+                        return prevCarrinho.filter(itemCarrinho =>
+                            itemCarrinho.id !== id || itemCarrinho.categoria !== categoria
+                        );
+                    }
+                }
+    
+                return prevCarrinho; 
+            });
+        }
+    
+        Toast.show({
+            type: 'error',  
+            text2: 'ITEM DELETADO!',
+            useModal: true,
+            visibilityTime: 1000
+          })
     };
+    
+    
     
     
     

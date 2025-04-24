@@ -9,6 +9,7 @@ import { ScrollView } from "react-native-gesture-handler";
 
 export const CarrinhoCompras = () => {
     const [modalVisivel, setModalVisivel] = useState(false)
+    const [expandido, setExpandido] = useState(false)
 
     const {
         carrinhoVisivel,
@@ -19,6 +20,8 @@ export const CarrinhoCompras = () => {
         removerItem,
         totalItens
     } = useCarrinho()
+
+ 
 
 
     const AlertaCancelar = () => {
@@ -90,7 +93,8 @@ export const CarrinhoCompras = () => {
 
                             <ScrollView>
                                 {itemCarrinho.map((item) => (
-                                    <View key={`${item.categoria}-${item.id}`} style={CarrinhoStyle.itemContainer}>
+                                    <View key={`${item.categoria}-${item.id}-${item.idSabor}`}
+                                    style={CarrinhoStyle.itemContainer}>
 
                                         <View style={CarrinhoStyle.viewTipo}>
                                             <Text style={ModalStyle.txtTipo}>{item.tipo}</Text>
@@ -98,8 +102,32 @@ export const CarrinhoCompras = () => {
                                         <View style={CarrinhoStyle.viewNome}>
                                             <Text style={ModalStyle.txtProp}>{item.nome}</Text>
                                             {item.sabor && (
-                                                <Text>SABOR: {item.sabor}</Text>
+                                                <Text style={ModalStyle.txtPropSabor}>SABOR: {item.sabor}</Text>
                                             )}
+                                            {/* {true && (
+                                                <View style={CarrinhoStyle.containerAdc}>
+                                                    <Text>ADICIONAIS:</Text>
+                                                    <TouchableWithoutFeedback>
+                                                            <Ionicons name="chevron-down-outline" size={20}/>
+                                                    </TouchableWithoutFeedback>
+                                                </View>
+                                                
+                                                // <TouchableWithoutFeedback onPress={() => setExpandido(!expandido)} style = {CarrinhoStyle.btnAdicionais}>
+                                                //     <Text>ADICIONAIS: </Text>
+                                                //     <Ionicons 
+                                                //         name={'chevron-down-outline' }
+                                                //         size={25}
+                                                       
+                                                //     />
+                                                // </TouchableWithoutFeedback>
+                                                    // <Text style = {ModalStyle.txtPropSabor}> 
+                                                    //     ADC: {item.adicional.map(adc => adc.nome).join(',')}
+                                                    // </Text>
+                                                    
+                                               
+                                            )} */}
+                                                
+                                            
                                         </View>
                                         <View style={CarrinhoStyle.viewValor}>
                                             {typeof item.valor === "number" && (
@@ -113,7 +141,7 @@ export const CarrinhoCompras = () => {
                                         </View>
 
                                         <View style={CarrinhoStyle.viewBtn}>
-                                            <TouchableOpacity style={[CarrinhoStyle.BtnAddRemove, { backgroundColor: 'red' }]} onPress={() => removerItem(item.id, item.categoria)}>
+                                            <TouchableOpacity style={[CarrinhoStyle.BtnAddRemove, { backgroundColor: 'red' }]} onPress={() => removerItem(item.id, item.categoria, item.idSabor)}>
                                                 <Ionicons name="remove-outline" size={25} />
                                             </TouchableOpacity>
                                         </View>

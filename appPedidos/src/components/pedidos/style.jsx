@@ -8,11 +8,16 @@ export default PedidoStyle = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         backgroundColor: 'white',
-        alignItems: 'center'
+        alignItems: 'center',
+        marginBottom: 10
         
        
         
     },
+
+  
+
+
 
     viewMesa: {
         width: "25%",
@@ -85,9 +90,74 @@ export default PedidoStyle = StyleSheet.create({
         color: 'white',
         fontWeight: 'bold',
         fontSize: 18
-    }
+    },
 
+    itemContainer: {
+        paddingVertical: 10,
+        borderBottomWidth: 1,
+        borderColor: '#ddd',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        width: '100%',
+        marginBottom: 15,
+    },
+    
+    viewNomeProp: {
+        width: '35%',
+        justifyContent: 'flex-start',
+        
+    },
+
+    viewTipoProp: {
+        width: '20%',
+        alignItems: 'center',
+        
+        
+    },
+
+    viewValorProp: {
+        width: '20%', 
+        justifyContent: 'center',
+        marginRight: 10 
+    },
+
+    viewQtdProp: {
+        width: '15%',
+        justifyContent: 'center',
+        alignItems: 'center'
+        
+
+    },
+
+    txtTipoProp: {
+        fontSize: 12
+    },
+
+    txtProp: {
+        fontSize: 17,
+        marginHorizontal: 4,
+    },
+
+    txtTipo: {
+        fontSize: 15
+    },
+
+    containerTotal: {
+        width: "80%",
+        height: "10%",
+        alignItems: 'center',
+        marginBottom: 50
+
+    },
+
+    txtTotal: { 
+        fontSize: 30,
+        fontWeight: 'bold'
+
+    }
    
+
 
     
    

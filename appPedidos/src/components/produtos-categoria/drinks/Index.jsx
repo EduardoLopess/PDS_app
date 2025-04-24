@@ -127,8 +127,6 @@ export const CategoriaDrink = ({ modalIdentificacao, abrirModal, fecharModal, mo
                                         </TouchableOpacity>
                                         
                                     </View>
-                                
-
                                 </View>
                             )}
                         

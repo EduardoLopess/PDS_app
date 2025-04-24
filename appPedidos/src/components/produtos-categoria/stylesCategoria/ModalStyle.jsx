@@ -12,6 +12,7 @@ export default ModalStyle = StyleSheet.create({
         maxHeight: '95%',
         overflow: 'scroll',
         paddingTop: 20,
+        
         zIndex: 5
     },
 
@@ -63,8 +64,9 @@ export default ModalStyle = StyleSheet.create({
     },
 
     viewNome: {
-        width: '30%',
-        justifyContent: 'flex-start', 
+        width: '35%',
+        justifyContent: 'flex-start',
+        paddingLeft: 5 
     },
 
     viewTipo: {
@@ -73,7 +75,7 @@ export default ModalStyle = StyleSheet.create({
     },
 
     viewValor: {
-        width: '30%', 
+        width: '25%', 
         justifyContent: 'center', 
     },
    
@@ -85,8 +87,18 @@ export default ModalStyle = StyleSheet.create({
 
     txtProp: {
         fontSize: 17,
-        marginHorizontal: 5,
+        marginHorizontal: 4,
     },
+
+    txtPropTipo: {
+        fontSize: 15,
+        
+    },
+
+    txtPropSabor: {
+        textAlign: 'center'
+    },
+
 
     txtValor: {
         fontSize: 18,
