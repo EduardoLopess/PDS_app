@@ -8,14 +8,18 @@ import { Ionicons } from '@expo/vector-icons';
 import SemAlcoolData from '../../../../data/SemAlcoolData'
 import { useRoute } from '@react-navigation/native';
 import { useCarrinho } from '../../../contexts/CarrinhoContext';
+import { agruparPorTipo } from '../../../utils/filtragem-produtos/AgruparProdutos';
+import { formatarTipoProduto } from '../../../utils/formatar/FormatarTipo';
 
 
-export const CategoriaSemAlcool = ({ modalIdentificacao, abrirModal, fecharModal, modalVisible }) => {
+export const CategoriaSemAlcool = ({ produtos, modalIdentificacao, abrirModal, fecharModal, modalVisible }) => {
     const route = useRoute()
-    const { numero } = route.params
-    const { addItemCarrinho } = useCarrinho()
+    const { numeroMesa } = route.params
+    const { adicionarItemCarrinho } = useCarrinho()
 
-    
+    const produtosSection = agruparPorTipo(produtos)
+    console.log("SEM ALCOOL", produtosSection)
+
     return (
         <TouchableOpacity onPress={abrirModal}>
             <View style={CardStyle.container}>
@@ -38,39 +42,39 @@ export const CategoriaSemAlcool = ({ modalIdentificacao, abrirModal, fecharModal
                     <View style={LinhaStyle.linhaHorizontal} />
 
                     <SectionList
-                        sections={SemAlcoolData}
+                        sections={produtosSection}
                         keyExtractor={(item, index) => index.toString()}
                         renderItem={({ item }) => (
                             <View style={ModalStyle.containerProp}>
                                 <View style={ModalStyle.viewTipo}>
-                                    <Text style={ModalStyle.txtPropTipo}>{item.tipo}</Text>
+                                    <Text style={ModalStyle.txtPropTipo}>{formatarTipoProduto(item.tipoProduto)}</Text>
                                 </View>
-                                
+
                                 <View style={ModalStyle.viewNome}>
-                                    <Text style={ModalStyle.txtProp}>{item.nome}</Text>
+                                    <Text style={ModalStyle.txtProp}>{item.nomeProduto}</Text>
                                 </View>
 
                                 <View style={ModalStyle.viewValor}>
-                                    <Text style={ModalStyle.txtValor}>{`R$: ${item.valor.toFixed(2).replace('.', ',')}`}</Text>
+                                    <Text style={ModalStyle.txtValor}>{`R$: ${item.precoProdutoFormatado}`}</Text>
                                 </View>
 
-                                {numero ? (
-                                    <TouchableOpacity style={[ModalStyle.BtnAddRemove, {backgroundColor: '#4E9726'}]} onPress={() => addItemCarrinho(item.id, "SemAlcool")}>
+                                {numeroMesa ? (
+                                    <TouchableOpacity style={[ModalStyle.BtnAddRemove, { backgroundColor: '#4E9726' }]} onPress={() => adicionarItemCarrinho(item.id)}>
                                         <Ionicons name="add-outline" size={25} />
                                     </TouchableOpacity>
                                 ) : (
-                                    <View style={ModalStyle.BtnAddRemove} /> 
+                                    <View style={ModalStyle.BtnAddRemove} />
                                 )}
                             </View>
                         )}
                         renderSectionHeader={({ section: { categoria } }) => (
                             <View style={ModalStyle.containerCategoria}>
-                                <Text style={ModalStyle.txtCategoria}>{categoria}</Text>
+                                <Text style={ModalStyle.txtCategoria}>{formatarTipoProduto(categoria)}</Text>
                             </View>
                         )}
                         showsVerticalScrollIndicator={false}
                     />
-                    <TouchableOpacity style = {ModalStyle.btnModal} onPress={fecharModal}>
+                    <TouchableOpacity style={ModalStyle.btnModal} onPress={fecharModal}>
                         <Text>FECHAR</Text>
                     </TouchableOpacity>
 

@@ -1,13 +1,29 @@
 import { View, Text } from "react-native"
-import { Toast } from "../../utils/notificacao/toast/Index"
 import ListaPedidoStyle from "./style"
 import { Pedido } from "../../components/pedidos/Index"
-import { usePedido } from "../../contexts/PedidoContext"
 import { ScrollView } from "react-native-gesture-handler"
+import { useFocusEffect } from "@react-navigation/native"
+import { useCallback, useState } from "react"
+import { getPedidos } from "../../services/pedidos-service/PedidoService"
 
 
 export const PedidosScreen = () => {
-    const {pedidoData} = usePedido()
+    const [pedidoData, setPedidoData] = useState([])
+
+
+
+    useFocusEffect(
+        useCallback(() => {
+            getPedidos()
+                .then(res => {
+                    console.log("Respota api PEDIDOS: ", res.data)
+                    setPedidoData(res.data.data)
+                })
+                .catch(err => console.error("Erro ao buscar pedidos", err))
+        }, [])
+    )
+
+
     console.log("PEDIDO TELA" , pedidoData)
     return (
         <View style = {ListaPedidoStyle.container}>
@@ -22,12 +38,13 @@ export const PedidosScreen = () => {
             <ScrollView>
                 <View>
                     {pedidoData.map((pedido) => (
+                        
                         <Pedido
                             key={pedido.idMesa}
                             idMesa={pedido.idMesa}
-                            numero={pedido.numeroMesa.numero}
+                            numero={pedido.numeroMesa}
                             total={pedido.total}
-                            hora={pedido.hora}
+                            hora={pedido.dateTimeFormatado}
                             itens={pedido.itens}
 
                         

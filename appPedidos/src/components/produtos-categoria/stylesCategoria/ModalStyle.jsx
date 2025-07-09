@@ -12,7 +12,7 @@ export default ModalStyle = StyleSheet.create({
         maxHeight: '95%',
         overflow: 'scroll',
         paddingTop: 20,
-        
+
         zIndex: 5
     },
 
@@ -38,10 +38,10 @@ export default ModalStyle = StyleSheet.create({
         flexDirection: 'row',
         backgroundColor: '#C5C0C0',
         width: '100%',
-        height: 55,
-        borderTopWidth: 1,
+        height: 60,
+        
+        borderRightColor: 'rgba(0, 0, 0, 0.1)',
         borderBottomWidth: 1,
-        padding: 5,
         alignItems: 'center',
     },
 
@@ -65,44 +65,55 @@ export default ModalStyle = StyleSheet.create({
 
     viewNome: {
         width: '35%',
-        justifyContent: 'flex-start',
-        paddingLeft: 5 
+        justifyContent: 'center',
+        paddingLeft: 5,
+        borderRightColor: 'rgba(0, 0, 0, 0.1)',
+        height: '100%',
+         borderRightWidth: 1,
     },
 
     viewTipo: {
         width: '20%',
-        alignItems: 'center'
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRightColor: 'rgba(0, 0, 0, 0.1)',
+        height: '100%',
+        borderRightWidth: 1
+        
     },
 
     viewValor: {
-        width: '25%', 
-        justifyContent: 'center', 
+        width: '25%',
+        justifyContent: 'center',
+        height: '100%',
+        alignItems: 'center'
     },
-   
+
 
     viewButton: {
-        width: '20%', 
-        alignItems: 'flex-end', 
+        width: '20%',
+        alignItems: 'flex-end',
     },
 
     txtProp: {
-        fontSize: 17,
+        fontSize: 15,
         marginHorizontal: 4,
     },
 
     txtPropTipo: {
-        fontSize: 15,
-        
+        fontSize: 12,
+
     },
 
     txtPropSabor: {
-        textAlign: 'center'
+        textAlign: 'center',
+        fontWeight: 'bold'
     },
 
 
     txtValor: {
-        fontSize: 18,
-        textAlign: 'right', 
+        fontSize: 15,
+        textAlign: 'right',
     },
 
     BtnAddRemove: {

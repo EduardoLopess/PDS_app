@@ -7,97 +7,138 @@ import ModalStyle from "../stylesCategoria/ModalStyle"
 import { useRoute } from "@react-navigation/native";
 import { useCarrinho } from "../../../contexts/CarrinhoContext";
 import { DrinkData } from "../../../../data/DrinkData";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { agruparPorTipo } from "../../../utils/filtragem-produtos/AgruparProdutos";
+import { getSabores } from "../../../services/sabores-service/SaborService";
+import { formatarTipoProduto } from "../../../utils/formatar/FormatarTipo";
 
 
-export const CategoriaDrink = ({ modalIdentificacao, abrirModal, fecharModal, modalVisible }) => {
+export const CategoriaDrink = ({ produtos, modalIdentificacao, abrirModal, fecharModal, modalVisible }) => {
     const route = useRoute()
-    const { numero } = route.params
-    const { addItemCarrinho, addSaborDrink } = useCarrinho()
-    const [itemID, setItemID]= useState()
+    const { numeroMesa } = route.params
+    const { addItemCarrinho, adicionarItemCarrinho, adicionarDrinkSaborCarrinho, addSaborDrink, setSaboresContext } = useCarrinho()
     const [modalSaboresVisivel, setModalSaboresVisivel] = useState(false)
-    const sabores = DrinkData.find(item => item.categoria === 'Sabores').data
+
+    const [saboresData, setSaboresData] = useState([])
+    const [idDrinkState, setIdDrinkState] = useState('')
+    const produtosSection = agruparPorTipo(produtos)
+
+
+    useEffect(() => {
+        if (modalVisible && modalIdentificacao === 'drink') {
+            getSabores()
+                .then(res => {
+                    console.log("Resposta API SABOR: ", res.data)
+                    setSaboresData(res.data.data)
+                    setSaboresContext(res.data.data)
+                })
+                .catch(err => console.error("Erro ao buscar sabores. ", err))
+        }
+    }, [modalVisible, modalIdentificacao])
+
 
     const abrir = () => {
         setModalSaboresVisivel(true)
     }
 
-    const tipoDrink = (id) => {
-        const tipo = DrinkData.find(categoria => categoria.data.some(item => item.id === id))
 
-        console.log(tipo.categoria)
+    const tipoDrink = (idDrink) => {
+        
+        const todosProdutos = produtosSection.flatMap(categoria => categoria.data);
+        const produto = todosProdutos.find(item => item.id === idDrink);
 
-        if(tipo.categoria === "Caipirinhas") {
-            setItemID(id)
-            setModalSaboresVisivel(true)
-        }else{
-            addItemCarrinho(id, "Drink")
+        if (!produto) {
+            console.log("Produto não encontrado");
+            return;
         }
-    }
+
+        if (produto.tipoProduto === 'Caipirinha') {
+            console.log("É CAIPIRINHA");
+            setIdDrinkState(idDrink)
+            setModalSaboresVisivel(true)
+        } else {
+            adicionarItemCarrinho(idDrink)
+        }
+    };
+
+
+    // const tipoDrink = (id) => {
+    //     const tipo = produtosSection.find(categoria => categoria.data.some(item => item.id === id))
+
+    //     console.log(tipo.categoria)
+
+    //     if (tipo.categoria === "Caipirinhas") {
+    //         setItemID(id)
+    //         setModalSaboresVisivel(true)
+    //     } else {
+    //         addItemCarrinho(id, "Drink")
+    //     }
+    // }
 
     const fechar = () => setModalSaboresVisivel(false)
 
 
     return (
         <TouchableOpacity onPress={abrirModal}>
-            <View style = {CardStyle.container}>
+            <View style={CardStyle.container}>
                 <Image
-                    style = {CardStyle.img}
-                    source = {require('../../../../assets/drink.png')}
+                    style={CardStyle.img}
+                    source={require('../../../../assets/drink.png')}
                 />
-                <Text style = {CardStyle.txtTipo}>DRINKS</Text>
+                <Text style={CardStyle.txtTipo}>DRINKS</Text>
             </View>
-            
 
-             <Modal
-                visible={modalVisible && modalIdentificacao === 'drink'}    
-                onRequestClose={fecharModal}  
-                animationType="slide"  
+
+            <Modal
+                visible={modalVisible && modalIdentificacao === 'drink'}
+                onRequestClose={fecharModal}
+                animationType="slide"
                 transparent={true}
             >
-                <View style = {ModalStyle.conteudoModal}>
-                    <View style = {LinhaStyle.linhaHorizontal}/>
-                        <Text style = {ModalStyle.tituloModal}>DRINKS</Text>
-                    <View style = {LinhaStyle.linhaHorizontal}/>
+                <View style={ModalStyle.conteudoModal}>
+                    <View style={LinhaStyle.linhaHorizontal} />
+                    <Text style={ModalStyle.tituloModal}>DRINKS</Text>
+                    <View style={LinhaStyle.linhaHorizontal} />
 
                     <SectionList
-                        sections = {DrinkData.filter(section => section.categoria !== 'Sabores')}
-                        keyExtractor = {(item, index) => index.toString()}
-                        renderItem = {({item}) => (
+                        sections={produtosSection.filter(section => section.categoria !== 'Sabores')}
+                        keyExtractor={(item, index) => index.toString()}
+                        renderItem={({ item }) => (
                             <View style={ModalStyle.containerProp}>
                                 <View style={ModalStyle.viewTipo}>
-                                    <Text style={ModalStyle.txtProp}>{item.tipo}</Text>
+                                    <Text style={ModalStyle.txtTipo}>{formatarTipoProduto(item.tipoProduto)}</Text>
+
                                 </View>
                                 <View style={ModalStyle.viewNome}>
-                                    <Text style={ModalStyle.txtProp}>{item.nome}</Text>
+                                    <Text style={ModalStyle.txtProp}>{item.nomeProduto}</Text>
                                 </View>
 
                                 <View style={ModalStyle.viewValor}>
-                                    <Text style={ModalStyle.txtValor}>{`R$: ${item.valor.toFixed(2).replace('.', ',')}`}</Text>
+                                    <Text style={ModalStyle.txtValor}>R$: {item.precoProdutoFormatado}</Text>
                                 </View>
                                 {/* () => addItemCarrinho(item.id, "Drink") */}
-                                {numero ? (
-                                    <TouchableOpacity style={[ModalStyle.BtnAddRemove, {backgroundColor: '#4E9726'}]} onPress={() => tipoDrink(item.id)}>
+                                {numeroMesa ? (
+                                    <TouchableOpacity style={[ModalStyle.BtnAddRemove, { backgroundColor: '#4E9726' }]} onPress={() => tipoDrink(item.id)}>
                                         <Ionicons name="add-outline" size={25} />
                                     </TouchableOpacity>
                                 ) : (
-                                    <View style={ModalStyle.BtnAddRemove} /> 
+                                    <View style={ModalStyle.BtnAddRemove} />
                                 )}
                             </View>
-                            
-                            
+
+
                         )}
-                        renderSectionHeader = {({section : {categoria}}) => (
-                            <View style = {ModalStyle.containerCategoria}>
-                                <Text style = {ModalStyle.txtCategoria}>{categoria}</Text>
+                        renderSectionHeader={({ section: { categoria } }) => (
+                            <View style={ModalStyle.containerCategoria}>
+                                <Text style={ModalStyle.txtCategoria}>{formatarTipoProduto(categoria)}</Text>
                             </View>
                         )}
                         showsVerticalScrollIndicator={false}
                     />
 
-                  
 
-                    <TouchableOpacity style = {ModalStyle.btnModal} onPress={fecharModal}>
+
+                    <TouchableOpacity style={ModalStyle.btnModal} onPress={fecharModal}>
                         <Text>FECHAR</Text>
 
                     </TouchableOpacity>
@@ -115,22 +156,25 @@ export const CategoriaDrink = ({ modalIdentificacao, abrirModal, fecharModal, mo
                         </View>
 
                         <FlatList
-                            data={sabores}
-                            renderItem={({item}) => (
+                            data={saboresData}
+                            renderItem={({ item }) => (
                                 <View style={styleModalSabores.container}>
                                     <View style={styleModalSabores.containerNome}>
-                                        <Text style={styleModalSabores.txtProp}>{item.nome}</Text>
+                                        <Text style={styleModalSabores.txtProp}>{item.nomeSabor}</Text>
+                                    </View>
+                                    <View style={styleModalSabores.containerDisponivel}>
+                                        <Text style={styleModalSabores.txtProp}>{item.disponivel}</Text>
                                     </View>
                                     <View style={styleModalSabores.containerBtnAdd}>
-                                        <TouchableOpacity style={styleModalSabores.btnAdd} onPress={() => addSaborDrink(item.id, itemID)}>
-                                            <Ionicons name="add-outline" size={30}/>
+                                        <TouchableOpacity style={styleModalSabores.btnAdd} onPress={() => adicionarDrinkSaborCarrinho(item.id, idDrinkState)}>
+                                            <Ionicons name="add-outline" size={30} />
                                         </TouchableOpacity>
-                                        
+
                                     </View>
                                 </View>
                             )}
-                        
-                        
+
+
                         />
                         <TouchableOpacity style={styleModalSabores.btnModal} onPress={fechar}>
                             <Text>FECHAR</Text>
@@ -138,13 +182,13 @@ export const CategoriaDrink = ({ modalIdentificacao, abrirModal, fecharModal, mo
 
                     </View>
 
-                   
+
 
 
                 </Modal>
 
             </Modal>
-            
+
         </TouchableOpacity>
     )
 }
@@ -188,7 +232,7 @@ const styleModalSabores = StyleSheet.create({
         padding: 10,
         marginBottom: 2
     },
-    
+
     containerNome: {
         width: '50%',
         paddingLeft: 10
@@ -211,7 +255,7 @@ const styleModalSabores = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: '#4E9726'
     },
-    
+
     btnModal: {
         backgroundColor: '#C5C0C0',
         width: 120,

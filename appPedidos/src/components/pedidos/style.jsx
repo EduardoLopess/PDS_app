@@ -16,12 +16,16 @@ export default PedidoStyle = StyleSheet.create({
     },
 
   
+  
+    txtPropSabor: {
+        textAlign: 'center'
 
+    },
 
 
     viewMesa: {
         width: "25%",
-        alignItems: 'center'
+        paddingStart: 10
 
     },
 
@@ -45,7 +49,7 @@ export default PedidoStyle = StyleSheet.create({
     },
 
     txt: {
-        fontSize: 17
+        fontSize: 15
 
     },
 
@@ -104,8 +108,9 @@ export default PedidoStyle = StyleSheet.create({
     },
     
     viewNomeProp: {
-        width: '35%',
+        width: '33%',
         justifyContent: 'flex-start',
+        
         
     },
 
@@ -123,7 +128,7 @@ export default PedidoStyle = StyleSheet.create({
     },
 
     viewQtdProp: {
-        width: '15%',
+        width: '20%',
         justifyContent: 'center',
         alignItems: 'center'
         

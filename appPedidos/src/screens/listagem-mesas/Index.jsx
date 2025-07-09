@@ -1,29 +1,36 @@
-import { TouchableWithoutFeedback, View, Keyboard, Image, TextInput, TouchableOpacity, Text } from "react-native"
-import { useEffect, useState } from "react"
+import { TouchableWithoutFeedback, View, Keyboard, Image, TextInput, TouchableOpacity, Text, ActivityIndicator } from "react-native"
+import { useCallback, useEffect, useState } from "react"
+import { useFocusEffect } from '@react-navigation/native';
+
 import ListaMesaStyle from "./style"
 import { Ionicons } from '@expo/vector-icons';
 import { ScrollView } from "react-native-gesture-handler";
 import { Mesa } from "../../components/mesa/Index";
-import MesaData from "../../../data/MesaData";
-import { Toast } from "../../utils/notificacao/toast/Index";
-import { useCarrinho } from "../../contexts/CarrinhoContext";
+
+import { getMesas } from "../../services/mesas-service/MesaService";
+import { usePedido } from "../../contexts/PedidoContext";
+import { useApiRequest } from "../../contexts/apiRequestContext";
 
 export const MesasScreen = () => {
      const [termoBusca, setTermoBusca] = useState('')
      const [statusFiltro, setStatusFiltro] = useState(null)
-     const { mesa } = useCarrinho()
-     const data = mesa
-     
-     // Filtro
-     const filtrarData = data.filter((item) => {
-          if (termoBusca && !item.numero.toString().includes(termoBusca)) {
-               return false
-          } 
-          if (statusFiltro !== null && item.status !== statusFiltro) {  
-               return false
-          }
+     const { mesaData, carregarMesas } = useApiRequest()
+     console.log("MESADATA -> ", mesaData)
 
-          return true
+     useFocusEffect(
+          useCallback(() => {
+               carregarMesas()
+          }, [])
+     )
+
+     const filtrarData = mesaData.filter((item) => {
+          if (termoBusca && !item.numeroMesa.toString().includes(termoBusca)) {
+               return false;
+          }
+          if (statusFiltro !== null && item.statusMesa !== statusFiltro) {
+               return false;
+          }
+          return true;
      })
 
      const btnStatusFiltro = (status) => {
@@ -31,7 +38,7 @@ export const MesasScreen = () => {
      }
 
      return (
-          
+
           <View style={ListaMesaStyle.container}>
                <View style={ListaMesaStyle.containerBtn}>
                     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -47,18 +54,18 @@ export const MesasScreen = () => {
                          </View>
                     </TouchableWithoutFeedback>
 
-                    
+
                     {statusFiltro === null ? (
                          <>
                               <TouchableOpacity
                                    style={[ListaMesaStyle.btnStyle, { backgroundColor: '#4E9726' }]}
-                                   onPress={() => btnStatusFiltro(false)}  
+                                   onPress={() => btnStatusFiltro(false)}
                               >
                                    <Text style={ListaMesaStyle.textBtn}>LIVRES</Text>
                               </TouchableOpacity>
                               <TouchableOpacity
                                    style={[ListaMesaStyle.btnStyle, { backgroundColor: '#E90000' }]}
-                                   onPress={() => btnStatusFiltro(true)}  
+                                   onPress={() => btnStatusFiltro(true)}
                               >
                                    <Text style={ListaMesaStyle.textBtn}>OCUPADAS</Text>
                               </TouchableOpacity>
@@ -76,15 +83,19 @@ export const MesasScreen = () => {
 
                <ScrollView>
                     <View style={ListaMesaStyle.containerLista}>
-                         {filtrarData.map((mesa) => (
-                              <Mesa
-                                   key={mesa.id}
-                                   id={mesa.id}
-                                   numero={mesa.numero}
-                                   status={mesa.status}
-                              />
-                         ))}
+                         {filtrarData
+                              .sort((a, b) => a.numeroMesa - b.numeroMesa)
+                              .map((mesa) => (
+                                   <Mesa
+                                        key={mesa.id}
+                                        id={mesa.id}
+                                        numero={mesa.numeroMesa}
+                                        status={mesa.statusMesa}
+                                   />
+                              ))
+                         }
                     </View>
+
                </ScrollView>
           </View>
      )

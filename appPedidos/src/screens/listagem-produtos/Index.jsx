@@ -1,20 +1,45 @@
 import { StyleSheet, View, Text } from "react-native";
-import { useRoute } from "@react-navigation/native";
+import { useFocusEffect, useRoute } from "@react-navigation/native";
 import { CategoriaDrink } from "../../components/produtos-categoria/drinks/Index";
 import { CategoriaCervejas } from "../../components/produtos-categoria/cervejas/Index";
 import { CategoriaPasteis } from "../../components/produtos-categoria/pasteis/Index";
 import { CategoriaPorcoes } from "../../components/produtos-categoria/porcoes/Index";
 import { CategoriaSemAlcool } from "../../components/produtos-categoria/sem-alcool/Index";
 import { CategoriaAlaminuta } from "../../components/produtos-categoria/alaminuta/Index";
-import { useState } from "react";
+import { useCallback, useMemo, useState } from "react";
+import { getProdutos } from "../../services/produtos-service/ProdutoService";
+import { filtrarProdutosPorCategoria } from "../../utils/filtragem-produtos/ProdutosPorCategoria";
+import { usePedido } from "../../contexts/PedidoContext";
+import { useCarrinho } from "../../contexts/CarrinhoContext";
 
 
 
-export const  ProdutosScreen = () => {
+export const ProdutosScreen = () => {
+
+    const {setProdutosContext} = useCarrinho()
     const route = useRoute()
-    const {numero} = route.params
+    const { numeroMesa } = route.params
     const [modalVisible, setModalVisible] = useState(false)
     const [modalIdentificacao, setModalIdentificacao] = useState(null)
+    const [produtosData, setProdutosData] = useState([])
+
+    useFocusEffect(
+        useCallback(() => {
+            getProdutos()
+                .then(res => {
+                    console.log("Resposta api PRODUTOS:", res.data)
+                    setProdutosData(res.data.data)
+                    setProdutosContext(res.data.data)
+                })
+                .catch(err => console.error("Erro ao buscar produtos", err))
+        }, [])
+    )
+
+    const produtosPorCategoria = useMemo(() => {
+        return filtrarProdutosPorCategoria(produtosData)
+    }, [produtosData])
+
+
 
     const abrirModal = (identificacao) => {
         setModalIdentificacao(identificacao)
@@ -28,59 +53,70 @@ export const  ProdutosScreen = () => {
         setModalIdentificacao(null)
     }
 
+
+
     return (
-        <View style = {styles.container}>
-            { numero && (
-                <View style = {styles.containerTable}>
-                    <Text style={{fontSize: 20, fontWeight: 'bold'}}>{`MESA: ${numero}`}</Text>
+        <View style={styles.container}>
+            {numeroMesa && (
+                <View style={styles.containerTable}>
+                    <Text style={{ fontSize: 20, fontWeight: 'bold' }}>{`MESA: ${numeroMesa}`}</Text>
                 </View>
             )}
 
-            <View style = {styles.containerConteudo}>
+            <View style={styles.containerConteudo}>
                 <CategoriaDrink
-                    abrirModal={() => abrirModal('drink')} 
+                    abrirModal={() => abrirModal('drink')}
+                    produtos={produtosPorCategoria['drink']}
                     fecharModal={fecharModal}
-                    modalVisible={modalVisible} 
+                    modalVisible={modalVisible}
                     modalIdentificacao={modalIdentificacao}
-                 />
+                />
                 <CategoriaCervejas
-                    abrirModal={() => abrirModal('cerveja')} 
+                    produtos={produtosPorCategoria['cerveja']}
+                    abrirModal={() => abrirModal('cerveja')}
                     fecharModal={fecharModal}
-                    modalVisible={modalVisible} 
+                    modalVisible={modalVisible}
                     modalIdentificacao={modalIdentificacao}
                 />
                 <CategoriaPasteis
-                    abrirModal={() => abrirModal('pasteis')} 
+                    produtos={produtosPorCategoria['pasteis']}
+                    abrirModal={() => abrirModal('pasteis')}
                     fecharModal={fecharModal}
-                    modalVisible={modalVisible} 
+                    modalVisible={modalVisible}
                     modalIdentificacao={modalIdentificacao}
-                 />
+                />
                 <CategoriaPorcoes
-                    abrirModal={() => abrirModal('porcoes')} 
+                    produtos={produtosPorCategoria['porcoes']}
+                    abrirModal={() => abrirModal('porcoes')}
                     fecharModal={fecharModal}
-                    modalVisible={modalVisible} 
+                    modalVisible={modalVisible}
                     modalIdentificacao={modalIdentificacao}
-                 />
+                />
                 <CategoriaSemAlcool
-                    abrirModal={() => abrirModal('semAlcool')} 
+                    produtos={produtosPorCategoria['semalcool']}
+                    abrirModal={() => abrirModal('semAlcool')}
                     fecharModal={fecharModal}
-                    modalVisible={modalVisible} 
+                    modalVisible={modalVisible}
                     modalIdentificacao={modalIdentificacao}
-                 />
+                />
                 <CategoriaAlaminuta
-                    abrirModal={() => abrirModal('alaminuta')} 
+                    produtos={produtosPorCategoria['alaminuta']}
+                    abrirModal={() => abrirModal('alaminuta')}
                     fecharModal={fecharModal}
-                    modalVisible={modalVisible} 
+                    modalVisible={modalVisible}
                     modalIdentificacao={modalIdentificacao}
-                 />
+                />
 
             </View>
 
-            
+
 
         </View>
     )
+
+    
 }
+
 
 const styles = StyleSheet.create({
     container: {
@@ -91,7 +127,7 @@ const styles = StyleSheet.create({
         flexWrap: 'wrap',
         justifyContent: 'center',
         padding: 30
-        
+
     },
 
     containerConteudo: {
@@ -109,6 +145,6 @@ const styles = StyleSheet.create({
         borderRadius: 15,
         justifyContent: 'center',
         alignItems: 'center',
-        
+
     }
 });

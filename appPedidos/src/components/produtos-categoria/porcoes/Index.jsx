@@ -6,14 +6,17 @@ import PorcoesData from '../../../../data/PorcoesData'
 import { Ionicons } from '@expo/vector-icons';
 import { useRoute } from '@react-navigation/native'
 import { useCarrinho } from '../../../contexts/CarrinhoContext'
+import { agruparPorTipo } from '../../../utils/filtragem-produtos/AgruparProdutos'
+import { formatarTipoProduto } from '../../../utils/formatar/FormatarTipo'
 
 
-export const CategoriaPorcoes = ({ modalIdentificacao, abrirModal, fecharModal, modalVisible }) => {
+export const CategoriaPorcoes = ({ produtos, modalIdentificacao, abrirModal, fecharModal, modalVisible }) => {
     const route = useRoute()
-    const {numero} = route.params
-    const { addItemCarrinho, numeroMesa } = useCarrinho()
+    const { numeroMesa } = route.params
+    const { adicionarItemCarrinho } = useCarrinho()
 
-    
+    const produtosSection = agruparPorTipo(produtos)
+
     return (
         <TouchableOpacity onPress={abrirModal}>
             <View style={CardStyle.container}>
@@ -32,31 +35,31 @@ export const CategoriaPorcoes = ({ modalIdentificacao, abrirModal, fecharModal, 
             >
                 <View style={ModalStyle.conteudoModal}>
                     <View style={LinhaStyle.linhaHorizontal} />
-                        <Text style={ModalStyle.tituloModal}>PORÇÕES</Text>
+                    <Text style={ModalStyle.tituloModal}>PORÇÕES</Text>
                     <View style={LinhaStyle.linhaHorizontal} />
 
                     <SectionList
-                        sections={PorcoesData}
+                        sections={produtosSection}
                         keyExtractor={(item, index) => index.toString()}
                         renderItem={({ item }) => (
                             <View style={ModalStyle.containerProp}>
                                 <View style={ModalStyle.viewTipo}>
-                                    <Text style={ModalStyle.txtProp}>{item.tipo}</Text>
+                                    <Text style={ModalStyle.txtProp}>{formatarTipoProduto(item.tipoProduto)}</Text>
                                 </View>
                                 <View style={ModalStyle.viewNome}>
-                                    <Text style={ModalStyle.txtProp}>{item.nome}</Text>
+                                    <Text style={ModalStyle.txtProp}>{item.nomeProduto}</Text>
                                 </View>
 
                                 <View style={ModalStyle.viewValor}>
-                                    <Text style={ModalStyle.txtValor}>{`R$: ${item.valor.toFixed(2).replace('.', ',')}`}</Text>
+                                    <Text style={ModalStyle.txtValor}>{`R$: ${item.precoProdutoFormatado}`}</Text>
                                 </View>
 
-                                {numero ? (
-                                    <TouchableOpacity style={[ModalStyle.BtnAddRemove, {backgroundColor: '#4E9726'}]} onPress={() => addItemCarrinho(item.id, "Porcoes")}>
+                                {numeroMesa ? (
+                                    <TouchableOpacity style={[ModalStyle.BtnAddRemove, { backgroundColor: '#4E9726' }]} onPress={() => adicionarItemCarrinho(item.id)}>
                                         <Ionicons name="add-outline" size={25} />
                                     </TouchableOpacity>
                                 ) : (
-                                    <View style={ModalStyle.BtnAddRemove} /> 
+                                    <View style={ModalStyle.BtnAddRemove} />
                                 )}
                             </View>
                         )}

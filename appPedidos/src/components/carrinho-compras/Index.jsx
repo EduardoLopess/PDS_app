@@ -6,22 +6,41 @@ import LinhaStyle from '../produtos-categoria/stylesCategoria/LinhaStyle'
 import { useState } from "react";
 import { useCarrinho } from "../../contexts/CarrinhoContext";
 import { ScrollView } from "react-native-gesture-handler";
+import { Button } from "react-native";
+import { usePedido } from "../../contexts/PedidoContext";
+import { formatarTipoProdutoCarrinho } from "../../utils/formatar/FormatarTipo";
+import { useNavigation } from "@react-navigation/native";
+
 
 export const CarrinhoCompras = () => {
+    const navigation = useNavigation();
+    console.log("CarrinhoCompras renderizado");
     const [modalVisivel, setModalVisivel] = useState(false)
-    const [expandido, setExpandido] = useState(false)
+    const [modalAdicional, setModalAdicional] = useState(false)
+    const [itemSelecionado, setItemSelecionado] = useState(null);
+
+
 
     const {
         carrinhoVisivel,
-        finalizarPedido,
-        cancelarPedido,
+
         itemCarrinho,
-        numeroMesa,
-        removerItem,
-        totalItens
+        totalItens,
+        removerItemCarrinho,
+        removerAdicionalDoItemCarrinho
     } = useCarrinho()
 
- 
+    const { cancelarPedido, numeroMesaContext, finalizarPedido } = usePedido()
+
+
+    console.log("ITEM CARRINHO:\n", JSON.stringify(itemCarrinho, null, 2));
+
+
+   
+    console.log("NUMERO DA MESA DO CARRINHO: ", numeroMesaContext)
+
+
+
 
 
     const AlertaCancelar = () => {
@@ -51,7 +70,7 @@ export const CarrinhoCompras = () => {
             [
                 {
                     text: 'SIM',
-                    onPress: () => finalizarPedido(numeroMesa),
+                    onPress: () => finalizarPedido(numeroMesaContext.numero),
                     style: 'cancel'
                 },
                 {
@@ -67,6 +86,20 @@ export const CarrinhoCompras = () => {
 
     const openModal = () => setModalVisivel(true)
     const fecharModal = () => setModalVisivel(false)
+
+    const openModalAdicional = (item) => {
+        setItemSelecionado(item);
+        setModalAdicional(true);
+    };
+
+    const fecharModalAdicional = () => {
+        setItemSelecionado(null);
+        setModalAdicional(false);
+    };
+
+
+
+
 
     const renderCarrinhoCompras = () => {
         if (carrinhoVisivel) {
@@ -88,66 +121,59 @@ export const CarrinhoCompras = () => {
                             <View style={LinhaStyle.linhaHorizontal} />
 
                             <View style={CarrinhoStyle.mesaIdentificacao}>
-                                <Text style={CarrinhoStyle.mesaTxt}>MESA {numeroMesa.numero} </Text>
+                                <Text style={CarrinhoStyle.mesaTxt}>MESA {numeroMesaContext?.numero ?? '---'} </Text>
                             </View>
 
-                            <ScrollView>
+                            <ScrollView style={{ width: '100%' }}>
                                 {itemCarrinho.map((item) => (
-                                    <View key={`${item.categoria}-${item.id}-${item.idSabor}`}
-                                    style={CarrinhoStyle.itemContainer}>
+                                    <View key={item.idUnico} style={CarrinhoStyle.itemContainer}>
 
                                         <View style={CarrinhoStyle.viewTipo}>
-                                            <Text style={ModalStyle.txtTipo}>{item.tipo}</Text>
+                                            <Text style={ModalStyle.txtTipo}>{formatarTipoProdutoCarrinho(item.tipo)}</Text>
                                         </View>
                                         <View style={CarrinhoStyle.viewNome}>
                                             <Text style={ModalStyle.txtProp}>{item.nome}</Text>
                                             {item.sabor && (
-                                                <Text style={ModalStyle.txtPropSabor}>SABOR: {item.sabor}</Text>
+                                                <Text>SABOR: {item.sabor}</Text>
                                             )}
-                                            {/* {true && (
-                                                <View style={CarrinhoStyle.containerAdc}>
-                                                    <Text>ADICIONAIS:</Text>
-                                                    <TouchableWithoutFeedback>
-                                                            <Ionicons name="chevron-down-outline" size={20}/>
-                                                    </TouchableWithoutFeedback>
-                                                </View>
-                                                
-                                                // <TouchableWithoutFeedback onPress={() => setExpandido(!expandido)} style = {CarrinhoStyle.btnAdicionais}>
-                                                //     <Text>ADICIONAIS: </Text>
-                                                //     <Ionicons 
-                                                //         name={'chevron-down-outline' }
-                                                //         size={25}
-                                                       
-                                                //     />
-                                                // </TouchableWithoutFeedback>
-                                                    // <Text style = {ModalStyle.txtPropSabor}> 
-                                                    //     ADC: {item.adicional.map(adc => adc.nome).join(',')}
-                                                    // </Text>
-                                                    
-                                               
-                                            )} */}
-                                                
-                                            
                                         </View>
+
                                         <View style={CarrinhoStyle.viewValor}>
-                                            {typeof item.valor === "number" && (
-                                                <Text style={ModalStyle.txtValor}>
-                                                    {`R$: ${item.valor.toFixed(2).replace('.', ',')}`}
-                                                </Text>
-                                            )}
+                                            <Text style={ModalStyle.txtValor}>R$: {item.preco}</Text>
                                         </View>
+
                                         <View style={CarrinhoStyle.viewQtd}>
                                             <Text style={ModalStyle.txtProp}>{`${item.qtd}x`}</Text>
                                         </View>
 
                                         <View style={CarrinhoStyle.viewBtn}>
-                                            <TouchableOpacity style={[CarrinhoStyle.BtnAddRemove, { backgroundColor: 'red' }]} onPress={() => removerItem(item.id, item.categoria, item.idSabor)}>
+                                            <TouchableOpacity style={[CarrinhoStyle.BtnAddRemove, { backgroundColor: 'red' }]} onPress={() =>
+                                                removerItemCarrinho(item.idUnico)
+
+
+                                            }>
                                                 <Ionicons name="remove-outline" size={25} />
                                             </TouchableOpacity>
                                         </View>
 
+                                        {/* AQUI MOSTRA OS ADICIONAIS */}
+                                        {item.adicionais && item.adicionais.length > 0 && (
+                                            <View style={CarrinhoStyle.containerAdicionais}>
+                                                {item.adicionais.map((adicional) => (
+                                                    <View key={adicional.id} style={CarrinhoStyle.adicionalItem}>
+                                                        <Text>{adicional.adicionalNome} ({adicional.quantidade || 1}x) - R$: {adicional.precoAdicionalFormatado}</Text>
+                                                        <TouchableOpacity onPress={() => removerAdicionalDoItemCarrinho(item.id, adicional.id, item.adicionaisKey)} style={{ padding: 4 }}>
+                                                            <Ionicons name="remove-circle-outline" size={20} color="red" />
+                                                        </TouchableOpacity>
+                                                    </View>
+                                                ))}
+                                            </View>
+                                        )}
+
+
                                     </View>
                                 ))}
+
 
                             </ScrollView>
 

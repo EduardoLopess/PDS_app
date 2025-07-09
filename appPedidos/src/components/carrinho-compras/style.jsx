@@ -8,52 +8,51 @@ export default CarrinhoStyle = StyleSheet.create({
         position: 'relative'
     },
 
-    itemContainer:{
-        paddingVertical: 10,
-        borderBottomWidth: 1,
-        borderColor: '#ddd',
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        width: '100%',
-        marginBottom: 15,
-        
-    },
 
-    viewNome: {
-        width: '35%',
-        justifyContent: 'flex-start',
-        
+
+    itemContainer: {
+        width: '100%',
+        // height: 55,   // remova a altura fixa para permitir conteúdo dinâmico
+        flexDirection: 'row',
+        alignItems: 'center',
+        borderBottomWidth: 1,
+        borderColor: '#ccc',
+        paddingHorizontal: 5,
+        paddingVertical: 8, // dê um pouco mais de espaço vertical
+        flexWrap: 'wrap',
+
     },
 
     viewTipo: {
-        width: '20%',
-        alignItems: 'center',
-        
-        
+        width: '15%',
+        marginStart: 5,
+        alignItems: 'flex-start',
     },
 
-    txtTipo: {
-        fontSize: 12
+    viewNome: {
+        width: '40%',
+        justifyContent: 'center',
+        alignItems: 'flex-start',
     },
 
     viewValor: {
-        width: '20%', 
-        justifyContent: 'center', 
+        width: '20%',
+        justifyContent: 'center',
+        alignItems: 'flex-end',
     },
 
     viewQtd: {
-        width: '15%',
+        flex: 0.8,
         justifyContent: 'center',
-        alignItems: 'center'
-        
-
+        alignItems: 'center',
     },
 
     viewBtn: {
-        width: '10%', 
-        alignItems: 'flex-end', 
+        flex: 0.8,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
+
 
     BtnAddRemove: {
         marginHorizontal: 10,
@@ -61,14 +60,6 @@ export default CarrinhoStyle = StyleSheet.create({
         height: 40,
         alignItems: 'center',
         justifyContent: 'center'
-    },
-
-    btnAdicionais: {
-        width: '100%',
-        justifyContent: 'space-between',
-        alignItems: "center",
-        marginRight: 5,
-        flexDirection: 'row'
     },
 
     mesaIdentificacao: {
@@ -100,7 +91,7 @@ export default CarrinhoStyle = StyleSheet.create({
         marginHorizontal: 10,
         justifyContent: 'center',
         alignItems: 'center',
-        flexDirection: 'row',   
+        flexDirection: 'row',
     },
 
     textBtn: {
@@ -128,8 +119,12 @@ export default CarrinhoStyle = StyleSheet.create({
         height: "10%",
         alignItems: 'center',
         marginTop: 20
-        
 
+
+    },
+
+    btnModalAdicional: {
+        flexDirection: "row"
     },
 
     txtTotal: {
@@ -144,6 +139,20 @@ export default CarrinhoStyle = StyleSheet.create({
 
     containerAdc: {
         flexDirection: 'row',
-        
-    }
+
+    },
+
+    containerAdicionais: {
+        width: '100%',
+        paddingLeft: 50,  // deixa um recuo para destacar que é "filho" do item
+        marginTop: 4,
+    },
+
+    adicionalItem: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingVertical: 2,
+    },
+
 })

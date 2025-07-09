@@ -1,33 +1,114 @@
-import { TouchableOpacity , View, Text, Image, Modal, SectionList, FlatList, StyleSheet, Alert } from 'react-native'
+import { TouchableOpacity, View, Text, Image, Modal, SectionList, Alert } from 'react-native'
 import CardStyle from '../stylesCategoria/CardStyle'
 import ModalStyle from '../stylesCategoria/ModalStyle'
 import LinhaStyle from '../stylesCategoria/LinhaStyle'
-import { AlaminutaData } from '../../../../data/AlaminutaData'
 import { Ionicons } from '@expo/vector-icons';
 import { useCarrinho } from '../../../contexts/CarrinhoContext'
 import { useRoute } from '@react-navigation/native'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { agruparPorTipo } from '../../../utils/filtragem-produtos/AgruparProdutos'
+import { getAdicionais } from '../../../services/adicionais-service/AdicionalService'
+import { formatarTipoProduto } from '../../../utils/formatar/FormatarTipo'
 
-
-
-export const CategoriaAlaminuta = ({ modalIdentificacao, abrirModal, fecharModal, modalVisible }) => {
+export const CategoriaAlaminuta = ({ produtos, modalIdentificacao, abrirModal, fecharModal, modalVisible }) => {
     const route = useRoute()
-    const { numero } = route.params
+    const { numeroMesa } = route.params
     const [modalAdicionalVisivel, setModalAdicionalVisivel] = useState(false)
-    const [itemId, setItemId] = useState()
-   
+    const [adicionaisData, setAdicionaisData] = useState([])
+    const [adicionaisSelecionados, setAdicionaisSelecionados] = useState({})
+    const [itemId, setItemId] = useState(null);
 
-    const { addItemCarrinho, addAlaminutaCarrinho } = useCarrinho()
+    const produtosSection = agruparPorTipo(produtos)
+    const { adicionarItemCarrinho, adicionarAdicionalCarrinho, setAdicionaisDataContext } = useCarrinho()
 
+    useEffect(() => {
+        getAdicionais()
+            .then(res => setAdicionaisData(res.data.data))
+            .catch(err => console.log("Erro ao buscar os adicionais.", err))
+    }, [])
+
+
+
+    const adicionaisSection = {
+        categoria: 'Adicionais',
+        data: adicionaisData.map(adc => ({
+            ...adc,
+            tipoProduto: 'Adicional',
+            nomeProduto: adc.adicionalNome,
+            precoProdutoFormatado: adc.precoAdicionalFormatado
+        }))
+    }
+
+    const secoesFinal = [...produtosSection, adicionaisSection]
+
+    // Abrir modal adicionais e limpar seleção anterior
     const abrirModalAdicional = (id) => {
         setItemId(id)
+        setAdicionaisSelecionados({})
         setModalAdicionalVisivel(true)
     }
 
-    const fecharModalAdicional = () => setModalAdicionalVisivel(false)
-    
-    const adicionais = AlaminutaData.find(item => item.categoria === 'Adicionais').data
-   
+    const buscarProdutoPorId = (id) => {
+        for (const secao of secoesFinal) {
+            const produto = secao.data.find(p => p.id === id);
+            if (produto) {
+                console.log("PRODUTO ACHADO -> ", produto);
+                return produto;
+            }
+        }
+        console.log("Produto não encontrado");
+        return null;
+    }
+
+
+
+    const fecharModalAdicional = () => {
+        const adicionaisSelecionadosArray = Object.entries(adicionaisSelecionados).map(([id, quantidade]) => {
+            const adicional = adicionaisData.find(adc => adc.id === Number(id));
+            return {
+                ...adicional,
+                quantidade
+            };
+        });
+
+        const produtoSelecionado = buscarProdutoPorId(itemId);
+
+        if (!produtoSelecionado) {
+            console.warn("Produto selecionado não encontrado.");
+            return;
+        }
+
+        const item = {
+            ...produtoSelecionado,
+            adicionais: adicionaisSelecionadosArray
+        };
+
+        adicionarAdicionalCarrinho(item);
+        setModalAdicionalVisivel(false);
+        setAdicionaisSelecionados({});
+    }
+
+
+
+    // Incrementa quantidade do adicional selecionado
+    const adicionarAdicional = (id) => {
+        setAdicionaisSelecionados(prev => {
+            const current = prev[id] || 0
+            return { ...prev, [id]: current + 1 }
+        })
+    }
+
+    // Decrementa quantidade do adicional selecionado
+    const removerAdicional = (id) => {
+        setAdicionaisSelecionados(prev => {
+            const current = prev[id] || 0
+            if (current <= 1) {
+                const { [id]: _, ...rest } = prev // remove o id se quantidade for 1 ou menos
+                return rest
+            }
+            return { ...prev, [id]: current - 1 }
+        })
+    }
 
     const Alerta = (id) => {
         Alert.alert(
@@ -40,16 +121,17 @@ export const CategoriaAlaminuta = ({ modalIdentificacao, abrirModal, fecharModal
                     style: 'cancel'
                 },
                 {
-                    text: 'NAO',
-                    onPress: () => addItemCarrinho(id, "Alaminuta")
+                    text: 'NÃO',
+                    onPress: () => adicionarItemCarrinho(id)
                 }
             ],
             { cancelable: true }
         )
     }
 
- 
-    
+    // Seção adicionais para SectionList
+
+
     return (
         <TouchableOpacity onPress={abrirModal}>
             <View style={CardStyle.container}>
@@ -72,178 +154,136 @@ export const CategoriaAlaminuta = ({ modalIdentificacao, abrirModal, fecharModal
                     <View style={LinhaStyle.linhaHorizontal} />
 
                     <SectionList
-                        sections={AlaminutaData.filter(section => section.categoria !== 'Sabores')}
+                        sections={secoesFinal}
                         keyExtractor={(item, index) => index.toString()}
-                        renderItem={({ item, section }) => (
+                        renderItem={({ item }) => (
                             <View style={ModalStyle.containerProp}>
                                 <View style={ModalStyle.viewTipo}>
-                                    <Text style={ModalStyle.txtTipo}>{item.tipo}</Text>
-
+                                    <Text style={ModalStyle.txtTipo}>{formatarTipoProduto(item.tipoProduto)}</Text>
                                 </View>
                                 <View style={ModalStyle.viewNome}>
-                                    <Text style={ModalStyle.txtProp}>{item.nome}</Text>
+                                    <Text style={ModalStyle.txtProp}>{item.nomeProduto}</Text>
                                 </View>
-                                {/* onPress={() => addItemCarrinho(item.id, "Alaminuta")}> */}
                                 <View style={ModalStyle.viewValor}>
-                                    <Text style={ModalStyle.txtValor}>{`R$: ${item.valor.toFixed(2).replace('.', ',')}`}</Text>
+                                    <Text style={ModalStyle.txtValor}>R$: {item.precoProdutoFormatado}</Text>
                                 </View>
-
-                                {numero && section.categoria != 'Adicionais' ? (
-                                    <TouchableOpacity style={[ModalStyle.BtnAddRemove, { backgroundColor: '#4E9726' }]}
-                                        onPress={() => Alerta(item.id)}>
-
-                                        <Ionicons name="add-outline" size={25} />
-
-                                    </TouchableOpacity>
+                                {numeroMesa ? (
+                                    item.tipoProduto === 'Adicional' ? (
+                                        item.disponibilidadeAdicional !== false ? (
+                                            <TouchableOpacity
+                                                style={[ModalStyle.BtnAddRemove, { backgroundColor: '#4E9726' }]}
+                                                onPress={() => {
+                                                    // Só adiciona diretamente adicionais aqui se quiser, mas no seu fluxo só no modal
+                                                }}
+                                            >
+                                                <Ionicons name="add-outline" size={25} />
+                                            </TouchableOpacity>
+                                        ) : (
+                                            <View style={[ModalStyle.BtnAddRemove, { justifyContent: 'center', alignItems: 'center' }]}>
+                                                <Ionicons name="close-outline" size={25} color="red" />
+                                            </View>
+                                        )
+                                    ) : (
+                                        item.disponibilidadeProduto !== false ? (
+                                            <TouchableOpacity
+                                                style={[ModalStyle.BtnAddRemove, { backgroundColor: '#4E9726' }]}
+                                                onPress={() => Alerta(item.id)}
+                                            >
+                                                <Ionicons name="add-outline" size={25} />
+                                            </TouchableOpacity>
+                                        ) : (
+                                            <View style={[ModalStyle.BtnAddRemove, { justifyContent: 'center', alignItems: 'center' }]}>
+                                                <Ionicons name="close-outline" size={25} color="red" />
+                                            </View>
+                                        )
+                                    )
                                 ) : (
                                     <View style={ModalStyle.BtnAddRemove} />
                                 )}
-
                             </View>
                         )}
                         renderSectionHeader={({ section: { categoria } }) => (
                             <View style={ModalStyle.containerCategoria}>
-                                <Text style={ModalStyle.txtCategoria}>{categoria}</Text>
+                                <Text style={ModalStyle.txtCategoria}>{formatarTipoProduto(categoria)}</Text>
                             </View>
                         )}
                         showsVerticalScrollIndicator={false}
-
                     />
 
                     <TouchableOpacity style={ModalStyle.btnModal} onPress={fecharModal}>
                         <Text>FECHAR</Text>
                     </TouchableOpacity>
-
                 </View>
 
-
+                {/* Modal adicionais */}
                 <Modal
                     visible={modalAdicionalVisivel}
                     onRequestClose={fecharModalAdicional}
-                    animationType='slide'
+                    animationType="slide"
                     transparent={true}
                 >
-                    <View style={styleModalAdicional.modalContainer}>
-                        <View style={styleModalAdicional.containerAdicional}>
-                            <Text style={styleModalAdicional.txtTitle}>ADICIONAIS</Text>
-                        </View>
-                        <FlatList
-                            data={adicionais}
-                            renderItem={({ item }) => (
-                                <View style={styleModalAdicional.container}>
+                    <View style={ModalStyle.conteudoModal}>
+                        <View style={LinhaStyle.linhaHorizontal} />
+                        <Text style={ModalStyle.tituloModal}>ADICIONAIS</Text>
+                        <View style={LinhaStyle.linhaHorizontal} />
 
-                                    <View style={styleModalAdicional.containerNome}>
-                                        <Text style={styleModalAdicional.text}>{item.nome}</Text>
+                        {adicionaisData.length === 0 ? (
+                            <Text style={{ textAlign: 'center', marginTop: 20 }}>Nenhum adicional disponível.</Text>
+                        ) : (
+                            adicionaisData.map(item => {
+                                const quantidade = adicionaisSelecionados[item.id] || 0
+                                return (
+                                    <View
+                                        key={item.id}
+                                        style={[
+                                            ModalStyle.containerProp,
+                                            quantidade > 0 && { backgroundColor: '#d0f0c0' }
+                                        ]}
+                                    >
+                                        <View style={ModalStyle.viewTipo}>
+                                            <Text style={ModalStyle.txtTipo}>Adicional</Text>
+                                        </View>
+                                        <View style={ModalStyle.viewNome}>
+                                            <Text style={ModalStyle.txtProp}>{item.adicionalNome}</Text>
+                                        </View>
+                                        <View style={ModalStyle.viewValor}>
+                                            <Text style={ModalStyle.txtValor}>{item.precoAdicionalFormatado}</Text>
+                                        </View>
+                                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 1 }}>
+                                            {item.disponibilidadeAdicional === false ? (
+                                                <Ionicons name="close-outline" size={25} color="red" />
+                                            ) : (
+                                                <>
+                                                    <TouchableOpacity
+                                                        onPress={() => removerAdicional(item.id)}
+                                                        disabled={quantidade === 0}
+                                                    >
+                                                        <Ionicons
+                                                            name="remove-circle-outline"
+                                                            size={25}
+                                                            color={quantidade > 0 ? 'red' : 'gray'}
+                                                        />
+                                                    </TouchableOpacity>
+
+                                                    <Text style={{ minWidth: 20, textAlign: 'center' }}>{quantidade}</Text>
+
+                                                    <TouchableOpacity onPress={() => adicionarAdicional(item.id)}>
+                                                        <Ionicons name="add-circle-outline" size={25} color="green" />
+                                                    </TouchableOpacity>
+                                                </>
+                                            )}
+                                        </View>
                                     </View>
-                                    <View style={styleModalAdicional.containerValor}>
-                                        <Text style={styleModalAdicional.text}>{`R$: ${item.valor.toFixed(2).replace('.', ',')}`}</Text>
-                                    </View>
-                                    <View style={styleModalAdicional.containerBtn}>
-                                        <TouchableOpacity style={[ModalStyle.BtnAddRemove, { backgroundColor: '#4E9726' }]} onPress={() => {addAlaminutaCarrinho(item.id, itemId)}}>
-                                            <Ionicons name="add-outline" size={30} />
+                                )
+                            })
+                        )}
 
-                                        </TouchableOpacity>
-                                    </View>
-
-
-                                </View>
-                            )}
-
-                        />
-                        <TouchableOpacity style={styleModalAdicional.btn} onPress={fecharModalAdicional}>
+                        <TouchableOpacity style={ModalStyle.btnModal} onPress={fecharModalAdicional}>
                             <Text>FECHAR</Text>
                         </TouchableOpacity>
                     </View>
                 </Modal>
-
-
-
-
             </Modal>
-
-
         </TouchableOpacity>
-
     )
-
-
 }
-
-const styleModalAdicional = StyleSheet.create({
-    modalContainer: {
-        backgroundColor: 'white',
-        height: '48%',
-        width: '90%',
-        borderRadius: 25,
-        borderColor: 'black',
-        borderWidth: 0.5,
-        marginTop: '7%',
-        paddingTop: 20,
-        marginHorizontal: '5%',
-        justifyContent: 'center',
-        alignContent: 'center',
-        alignItems: 'center',
-
-
-
-    },
-
-    container: {
-        backgroundColor: '#4169E1',
-        justifyContent: 'space-between',
-        width: '100%',
-        flexDirection: 'row',
-        padding: 10,
-        marginBottom: 2,
-
-    },
-
-    text: {
-        fontSize: 18,
-        color: 'white'
-
-    },
-    txtTitle: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        color: 'white'
-    },
-
-    btn: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: '#C5C0C0',
-        width: 120,
-        height: 50,
-        borderRadius: 15,
-        marginBottom: 10
-
-    },
-    containerAdicional: {
-        backgroundColor: '#4169E1',
-        width: 140,
-        height: 50,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginBottom: 10
-
-
-    },
-
-    containerNome: {
-        width: "40%"
-
-    },
-    containerValor: {
-        width: "40%"
-
-
-    },
-
-    containerBtn: {
-        width: "20%"
-
-    }
-})
-
-
